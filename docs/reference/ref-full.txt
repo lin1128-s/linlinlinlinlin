@@ -1,0 +1,1219 @@
+﻿Ren'Py Tutorial 工程文件结构分析报告
+Ren'Py 8.5.3 SDK · 工程结构分析
+Ren'Py 
+Tutorial
+ 工程
+文件结构分析报告
+    这份工程的目录看起来只是一个「小游戏」，实际上是 Ren'Py 官方引擎自带的
+交互式教学示例
+：
+    602 个文件里只有 24 个英文脚本承载全部教学内容，其余绝大部分体积由图片素材、10 种语言的翻译镜像和引擎编译缓存构成。
+    下面是逐层拆解。
+分析对象 
+D:\renpy\renpy-8.5.3-sdk\tutorial
+引擎版本 
+Ren'Py 8.5.3.26051504
+快照时间 
+2026-10-22
+文件总数 
+602
+总体积 
+32.8 MB
+01
+总体指标
+02
+目录树
+03
+文件类型
+04
+源码分层
+05
+章节地图
+06
+翻译层
+07
+素材清单
+08
+运行时产物
+09
+结论与建议
+01
+总体指标
+按 1 KB = 1024 B 统计
+602
+文件
+25 个目录
+32.8
+MB
+总体积
+34,420,088 字节
+84,583
+脚本行数
+238 个 .rpy / .rpym
+10
+翻译语言
++ 1 个 None 回退层
+38
+screen 定义
+UI 与演示面板
+107
+图片素材
+20.6 MB · 占 62.6%
+一句话结论：
+这是一个「
+3 层结构
+」的可运行教学工程 ——
+框架层
+（约 1,266 行，负责把教程目录、章节调度和代码示例高亮跑起来）→
+章节层
+（约 5,964 行，13 个快速入门 + 13 个深入主题）→
+翻译镜像层
+（74,324 行，占全部脚本行的 
+87.9%
+，10 种语言一一对应）。
+      体积则由素材支配：图片 + 音频 + 视频共 25.3 MB，占 
+77.2%
+，代码本身不到 1/4。
+体积构成
+按文件类别
+图片 62.6%
+音视频 14.6%
+源码 11.3%
+编译缓存 10.7%
+图片 21,050 KB · 108 张（含 1 张缓存图）
+音频/视频 4,902 KB · 7 个
+.rpy/.rpym 源码 3,795 KB · 238 个
+.rpyc/.rpymc/.rpyb 3,595 KB · 241 个
+其余 273 KB
+      换句话说：
+每 4 个字节里只有 1 个是代码
+。这也解释了为什么这个"教学工程"有 32 MB —— 三张演出现场背景图就占了 12.4 MB。
+02
+目录树总览
+缩进为目录层级，右侧为体积与文件数
+tutorial/
+工程根目录 · 除 game/ 外只有 3 个说明与配置文件
+602 个 · 32.8 MB
+├─ project.json
+项目标识：
+hidden
+ 启动器里不显示 · 
+tutorial: true
+ 标记为官方教程
+0.1 KB
+├─ progressive_download.txt
+RenPyWeb 渐进下载规则：gui 留在 game.zip，图片/音乐边下边播
+0.4 KB
+├─ log.txt
+上一次运行的启动日志（渲染器、耗时、虚拟分辨率）
+1.6 KB
+└─ game/
+引擎读取的全部内容都在这一个目录里
+599 个 · 32.8 MB
+① 框架层 · 5 个文件 · 1,266 行 · 让教程"能跑起来"的胶水代码
+   ├─ script.rpy
+入口：
+Section
+/
+Tutorial
+ 类 + 教程目录屏 + 
+start
+/
+tutorials
+/
+end
+220 行 · 6.2 KB
+   ├─ 01example.rpy
+代码示例片段库（650 行）+「显示翻译」开关 + 
+example
+ 屏
+650 行 · 31.4 KB
+   ├─ examples.rpy
+示例渲染管线说明：把 
+#begin/#end
+ 标记的片段拼接、高亮、装进 viewport
+11 行 · 0.4 KB
+   ├─ 01director_support.rpy
+python early
+：启动时把 
+.rpym
+ 复制成 
+.rpy
+ 来启用交互式导演
+21 行 · 0.5 KB
+   └─ testcases.rpy
+自动化测试套件：
+testsuite
+/
+testcase
+，按语言参数跑全流程
+364 行 · 10.3 KB
+② 模板层 · 3 个文件 · 2,207 行 · Ren'Py 新建工程的标配三件套
+   ├─ screens.rpy
+23 个 UI 屏（say / choice / main_menu / game_menu / preferences …）
+1,514 行 · 38.4 KB
+   ├─ gui.rpy
+GUI 变量层：配色、字体、字号、边距、立绘尺寸
+467 行 · 15.1 KB
+   └─ options.rpy
+游戏配置：名称、版本、存档目录、构建分类
+226 行 · 7.0 KB
+③ 快速入门章节 · 6 个文件 · 973 行
+   ├─ tutorial_quickstart.rpy
+9 个章节标签：新建游戏 / 写对话 / 加图片 / 定位 / 转场 / 音乐 / 选项 / 输入
+621 行 · 20.8 KB
+   ├─ tutorial_playing.rpy
+玩家体验：回滚、快进、存读档、跳过
+108 行 · 4.3 KB
+   ├─ tutorial_nvlmode.rpy
+NVL 模式（整屏对话）与 nvl 版 Eileen
+89 行 · 2.2 KB
+   ├─ tutorial_director.rpy
+交互式导演演示（运行时由 .rpym 复制生成，见 09-③）
+75 行 · 3.1 KB
+   ├─ tutorial_director.rpym
+导演模块的"模板"正本，只在需要时被复制成 .rpy
+75 行 · 3.1 KB
+   ├─ tutorial_video.rpy
+视频播放（webm）+ 音量/字幕演示
+45 行 · 1.5 KB
+   └─ tutorial_distribute.rpy
+打包分发：构建流程与 5 张启动器截图
+35 行 · 1.7 KB
+④ 深入章节 · 10 个文件 · 4,991 行 · 源码主力（52.5%）
+   ├─ indepth_style.rpy
+样式系统：10 个标签 + 10 个屏（含 style inspector）
+1,094 行 · 33.5 KB
+   ├─ tutorial_atl.rpy
+定位属性、ATL 变换与动画属性
+930 行 · 25.8 KB
+   ├─ tutorial_screen_displayables.rpy
+11 类 screen displayable 的分类演示
+897 行 · 30.5 KB
+   ├─ tutorial_screens.rpy
+屏幕基础：显示、传参、属性、控制流、use
+662 行 · 20.0 KB
+   ├─ indepth_transitions.rpy
+转场画廊：7 个演示标签，覆盖 dissolve/cropmove/pushmove 等
+547 行 · 12.6 KB
+   ├─ indepth_minigame.rpy
+小游戏与 CDD：Pong 实现
+286 行 · 9.3 KB
+   ├─ indepth_text.rpy
+文本标签、转义、插值
+212 行 · 6.9 KB
+   ├─ indepth_character.rpy
+Character 对象：头像、颜色、回调
+163 行 · 6.0 KB
+   ├─ indepth_displayables.rpy
+简单 displayable 组合
+136 行 · 4.3 KB
+   └─ indepth_translations.rpy
+翻译机制现场演示（运行中切换语言）
+64 行 · 2.8 KB
+⑤ 素材 · 114 个文件 · 25.3 MB（图片在 game/images 与 game/gui，音频散在 game/ 根）
+   ├─ images/
+53 个：背景、立绘、转场、imagemap、九宫格、按钮图
+20.1 MB
+   ├─ gui/
+51 个：bar / button / overlay / phone / scrollbar / slider 的 9-patch 皮肤
+404 KB
+   ├─ *.ogg / *.opus
+6 个音频：主 BGM、音乐会曲、时钟、Pong 音效、打击音
+4.3 MB
+   ├─ oa4_launch.webm
+视频播放章节用到的示例影片
+476 KB
+   └─ keywords.py
+语法高亮用的关键字/属性正则表（不是游戏逻辑）
+131 KB
+⑥ 翻译镜像层 · tl/ · 11 个语言目录（10 种语言 + None） · 426 个文件 · 74,324 行
+   └─ tl/<lang>/
+french · italian · japanese · korean · piglatin · portuguese · russian · schinese · ukrainian + None
+3.4 MB · 88% 脚本行
+⑦ 运行与构建产物 · 可再生成，不应纳入版本管理
+   ├─ cache/
+6 个：Python 3.12 字节码、语法分析、屏幕分析、着色器列表、图片缓存
+1.2 MB
+   └─ saves/
+2 个自动存档 + persistent（上次玩到哪里的记录）
+139 KB
+03
+文件类型分布
+16 种扩展名 · 最大的 6 种占 96.5% 体积
+体积占比
+按扩展名
+32.8
+MB 总计
+.png
+19,695 KB · 98 个
+58.6%
+.ogg
+4,417 KB · 3 个
+13.1%
+.rpy
+3,771 KB · 236 个
+11.2%
+.rpyc
+2,348 KB · 236 个
+7.0%
+.rpyb
+1,236 KB · 4 个
+3.7%
+.jpg
+958 KB · 4 个
+2.9%
+其他 10 种
+1,189 KB · 21 个
+3.5%
+文件数量的"双主导"
+按个数
+.rpy
+236
+.rpyc
+236
+.png
+98
+.webp
+6
+.jpg
+4
+.rpyb
+4
+.ogg
+3
+.opus
+3
+.txt
+3
+.save
+2
+.rpym
+2
+.rpy
+ 与 
+.rpyc
+ 数量完全相等（各 236 个）——
+        每个源文件都有对应的编译产物，说明这份工程是
+被完整编译过一遍
+后才打包进 SDK 的。
+完整类型表
+扩展名
+角色
+文件数
+体积 (KB)
+体积占比
+分布
+.rpy
+Ren'Py 脚本源码（教程 + 翻译）
+236
+3,771.2
+11.2%
+.rpyc
+编译后的脚本（二进制，启动时省去解析）
+236
+2,347.8
+7.0%
+.rpyb
+引擎字节码/分析缓存（cache 目录）
+4
+1,235.6
+3.7%
+.rpym
+按需加载的模块脚本（导演演示 / 内建字符串）
+2
+23.3
+0.07%
+.rpymc
+.rpym 的编译产物
+1
+11.3
+0.03%
+.png
+界面、立绘、转场、imagemap
+98
+19,695.0
+58.6%
+.jpg
+背景照片（华盛顿、白宫、洞穴）
+4
+958.4
+2.9%
+.webp
+全景背景 + 启动器操作截图
+6
+396.4
+1.2%
+.ogg
+背景音乐（Vorbis）
+3
+4,416.9
+13.1%
+.opus
+短音效（Pong、打击）
+3
+8.5
+0.03%
+.webm
+示例视频
+1
+476.2
+1.4%
+.py
+keywords.py：高亮用关键字表，非逻辑代码
+1
+131.1
+0.4%
+.save
+自动存档（运行时生成）
+2
+137.7
+0.4%
+.txt
+log.txt、shaders.txt、渐进下载规则
+3
+2.4
+0.01%
+.json
+project.json 项目标识
+1
+0.1
+0.00%
+（无扩展名）
+saves/persistent 持久化数据
+1
+1.6
+0.00%
+合计
+16 种
+602
+33,613.5
+100%
+04
+源码分层结构
+英文源 25 个文件 · 9,512 行
+    把 
+game/
+ 根目录的 25 个脚本按职责归类，可以看出清晰的四层：
+框架
+（怎么把教程组织起来）→ 
+模板
+（Ren'Py 标准 UI）→ 
+章节
+（教什么）→ 
+示例数据
+（示例代码从哪来）。
+    其中真正属于"教程逻辑"的只有约 1,266 行，占英文源码的 13.3%。
+深入章节 52.5%
+模板 23.2%
+框架 13.3%
+快速入门 10.2%
+深入章节 4,991 行 / 10 文件
+模板层 2,207 行 / 3 文件
+框架层 1,266 行 / 5 文件
+快速入门 973 行 / 6 文件
+.rpym 模块 75 行
+框架层：教程是怎么组装起来的
+关键理解点
+      整份教程的"骨架"只有 20 多行真代码，位于 
+script.rpy
+：一个 
+Section
+ 类 + 一个 
+Tutorial
+ 类，
+      每个 
+Tutorial("label", "标题")
+ 会把自己追加进全局列表 
+tutorials
+；
+screen tutorials
+ 遍历这个列表生成目录；
+label tutorials
+ 用 
+call expression tutorial.label
+ 跳进章节，回来后再跳回目录 —— 于是形成一个"目录 ↔ 章节"的循环。
+      这条链路上还有两个容易被忽略的机制：
+示例内嵌
+章节里写的每一段教学代码，都用 
+#begin 名字
+ / 
+#end 名字
+ 包起来；
+01example.rpy
+ 在 
+init python
+ 阶段
+扫描全部 .rpy 源文件
+，用正则把片段抠出来存进字典，
+        再交给 
+example
+ 屏做语法高亮 + 复制按钮。也就是说：
+屏幕上显示的示例代码，就是源文件里真实运行的那段代码
+，永不过期。
+运行时换装
+01director_support.rpy
+ 用 
+python early
+ 在启动最早期把 
+tutorial_director.rpym
+ 复制成 
+tutorial_director.rpy
+，
+        从而"按需"把导演演示挂进游戏；复制失败（只读介质）时降级为只读模式。这就是目录里同时存在 
+.rpy
+ 与 
+.rpym
+ 两份 75 行文件的原因。
+      这也解释了 
+log.txt
+ 里的一条记录：
+Init at game/01example.rpy:571 took 6434 ms
+ ——
+      那次 6.4 秒的启动开销，正是"扫描 + 抠取 + 高亮全部示例"这一步，是整个启动流程里最重的操作。
+英文源模块明细
+按行数排序
+文件
+行数
+规模
+标签
+屏
+职责
+screens.rpy
+1,514
+0
+23
+标准 UI 屏集合，模板层主体
+indepth_style.rpy
+1,094
+10
+10
+样式系统，最大的深入章节（自带 style inspector）
+tutorial_atl.rpy
+930
+3
+0
+定位属性 + ATL 变换与动画
+tutorial_screen_displayables.rpy
+897
+11
+0
+11 类 screen displayable 逐类演示
+tutorial_screens.rpy
+662
+9
+3
+屏幕基础：传参、属性、控制流、use
+01example.rpy
+650
+0
+1
+示例片段库 + 示例渲染屏 + 翻译显示偏好
+tutorial_quickstart.rpy
+621
+9
+0
+9 个入门章节合装在一个文件里
+indepth_transitions.rpy
+547
+7
+0
+转场画廊，7 个子演示
+gui.rpy
+467
+0
+0
+GUI 变量层（配色/字体/尺寸）
+testcases.rpy
+364
+0
+0
+自动化测试：按语言跑完整流程
+indepth_minigame.rpy
+286
+2
+0
+Pong 小游戏 + CDD 用法
+options.rpy
+226
+0
+0
+游戏配置与构建规则
+script.rpy
+220
+3
+1
+入口与教程目录（start / tutorials / end）
+indepth_text.rpy
+212
+3
+0
+文本标签、转义、插值
+indepth_character.rpy
+163
+1
+0
+Character 对象定制
+indepth_displayables.rpy
+136
+1
+0
+简单 displayable 组合
+tutorial_playing.rpy
+108
+3
+0
+玩家体验：回滚、跳过、存读档
+tutorial_nvlmode.rpy
+89
+2
+0
+NVL 整屏对话模式
+tutorial_director.rpy
+75
+1
+0
+交互式导演（运行时生成）
+tutorial_director.rpym
+75
+1
+0
+同上，模块正本
+indepth_translations.rpy
+64
+1
+0
+翻译机制演示
+tutorial_video.rpy
+45
+1
+0
+视频播放
+tutorial_distribute.rpy
+35
+1
+0
+打包分发说明
+01director_support.rpy
+21
+0
+0
+导演模块的早启动/热插拔开关
+examples.rpy
+11
+0
+0
+示例渲染管线的说明与接口注释
+25 个文件
+9,512
+68
+38
+英文源合计（标签去重；.rpym 的 director 与其 .rpy 重复，故文件内共 69 处）
+05
+章节地图：目录项 → 文件 → 标签
+共 26 个教程条目，分 2 个分区
+    教程目录由 26 个 
+Tutorial
+ 条目组成：
+Quickstart 13 条
+（面向新手）+ 
+In Depth 13 条
+（面向进阶）。
+    很多条目不各自占一个文件 —— 例如"创建游戏/写对话/加图片"等 8 条全部住在 
+tutorial_quickstart.rpy
+ 里，
+    这就是该文件 621 行的原因。
+分区
+目录条目
+所在文件
+标签
+文件行数
+Quickstart
+Player Experience
+tutorial_playing.rpy
+tutorial_playing
+108
+Creating a New Game
+tutorial_quickstart.rpy
+tutorial_create
+621
+Writing Dialogue
+tutorial_quickstart.rpy
+tutorial_dialogue
+Adding Images
+tutorial_quickstart.rpy
+tutorial_images
+Positioning Images
+tutorial_quickstart.rpy
+tutorial_simple_positions
+Transitions
+tutorial_quickstart.rpy
+tutorial_transitions
+Music and Sound Effects
+tutorial_quickstart.rpy
+tutorial_music
+Choices and Python
+tutorial_quickstart.rpy
+tutorial_menus
+Input and Interpolation
+tutorial_quickstart.rpy
+tutorial_input
+Video Playback
+tutorial_video.rpy
+tutorial_video
+45
+NVL Mode
+tutorial_nvlmode.rpy
+tutorial_nvlmode
+89
+Tools and the Interactive Director
+tutorial_director.rpy
+.rpym
+director
+75
+Building Distributions
+tutorial_distribute.rpy
+distribute
+35
+小计：13 条条目 → 6 个文件 → 973 行
+973
+In Depth
+Text Tags, Escapes, Interpolation
+indepth_text.rpy
+text
+212
+Character Objects
+indepth_character.rpy
+demo_character
+163
+Simple Displayables
+indepth_displayables.rpy
+simple_displayables
+136
+Transition Gallery
+indepth_transitions.rpy
+demo_transitions
+547
+Position Properties
+tutorial_atl.rpy
+tutorial_positions
+930
+Transforms and Animation
+tutorial_atl.rpy
+tutorial_atl
+Transform Properties
+tutorial_atl.rpy
+transform_properties
+GUI Customization
+indepth_style.rpy
+new_gui
+1,094
+Styles and Style Properties
+indepth_style.rpy
+styles
+Screen Basics
+tutorial_screens.rpy
+tutorial_screens
+662
+Screen Displayables
+tutorial_screen_displayables.rpy
+screen_displayables
+897
+Minigames and CDDs
+indepth_minigame.rpy
+demo_minigame
+286
+Translations
+indepth_translations.rpy
+translations
+64
+小计：13 条条目 → 10 个文件 → 4,991 行
+4,991
+    注意 
+indepth_style.rpy
+ 与 
+tutorial_screens.rpy
+ 内部还有多层子菜单
+    （
+styles_menu
+、
+screens_menu
+），所以它们的标签数（10 / 9）明显多于目录条目数。
+    如果一个章节要"边讲边演示"，它就往往会膨胀成 800~1,100 行的重型文件（
+indepth_style
+、
+tutorial_atl
+、
+tutorial_screen_displayables
+ 都是这样）—— 这是这份工程的普遍规律。
+06
+翻译层：10 种语言 + 1 个回退层
+426 个文件 · 74,324 行 · 3.4 MB
+game/tl/<lang>/
+ 是 Ren'Py 的标准翻译目录结构：每个语言一套与英文源
+同名同构
+的
+.rpy
+（21 个左右，只有 
+translate <lang> <id>:
+ 块，不含逻辑），
+    外加引擎内建 UI 字符串的 
+common.rpy
+（每个 1,000~1,500 行，占该语言 15%~20% 的行数）。
+各语言脚本行数
+横条为相对长度
+italian
+9,589
+japanese
+7,445
+french
+7,273
+spanish
+7,219
+portuguese
+7,202
+piglatin
+7,187
+schinese
+7,147
+ukrainian
+7,122
+russian
+7,075
+korean
+7,065
+None（回退）
+747
+        除 Italian 外，各语言都稳定落在 
+7,065 ~ 7,445 行
+区间（±3%），说明这是一批
+同源同步生成
+的翻译包。
+每个语言的固定构成
+以 spanish 为例
+common.rpy
+引擎内建字符串（菜单、存读档、偏好设置…）
+1,222 行
+tutorial_quickstart.rpy
+8 个入门章节
+875 行
+indepth_style.rpy
+样式系统
+808 行
+tutorial_screen_displayables.rpy
+屏幕 displayable
+765 行
+tutorial_atl.rpy
+ATL 与变换
+651 行
+tutorial_screens.rpy
+屏幕基础
+593 行
+indepth_transitions.rpy
+转场画廊
+523 行
+screens.rpy
+UI 屏文本
+330 行
+indepth_character.rpy
+Character
+210 行
+tutorial_playing.rpy
+玩家体验
+193 行
+script.rpy
+目录标题与开场白
+179 行
+indepth_text.rpy
+文本标签
+178 行
+其余 9 个
+minigame / nvlmode / director / video / distribute / options / 01example / displayables / translations
+约 700 行
+21 个文件
++ 21 个同名 .rpyc
+7,219 行
+两个值得注意的特殊条目
+A
+tl/None/ —— 不是语言，是"回退层"
+          这个目录里只有一个 
+common.rpym
+（747 行），内容是 
+translate None strings:
+          块，且每条都是 
+old "Monday"
+ / 
+new "Monday"
+ 这样的
+恒等映射
+。
+          它是 Ren'Py 用来占位"未翻译语言"的内建字符串模板（引擎据此保证任何语言缺翻译时仍能显示原文）。
+          把它当成"第 11 种语言"会误判，实际它是
+0 号语言
+。
+B
+italian 包明显偏胖：疑似残留重复条目
+          Italian 共 
+9,589 行
+，比同批语言的平均值（约 7,193 行）高出 
+33%
+。差异集中在三个文件：
+tutorial_quickstart.rpy
+ 1,571 行（其他语言约 870）、
+indepth_style.rpy
+ 1,506 行（其他约 808）、
+indepth_transitions.rpy
+ 1,009 行（其他约 523）。
+          进一步核对发现：
+italian/indepth_style.rpy
+ 里几乎
+每个 translate 块都出现两次
+          （如 
+translate italian style_basics_9a79ef89
+ 重复 x2），quickstart 的块数为 259 而其它语言为 143。
+          这不会导致崩溃（后出现的同名块覆盖前者），但属于
+旧版条目未清理
+的维护噪声：
+          该语言包比同源语言多出约 2,400 行冗余条目，也让后续翻译校对容易漏掉真正的缺口。
+07
+素材清单与体积热点
+图片 107 · 音频 6 · 视频 1
+图片按用途分组
+game/images + gui
+分组
+文件
+体积
+说明
+演出现场背景
+3
+12.4 MB
+concert1~3.png，音乐章节用
+可点击热区图
+7
+4.1 MB
+音量控件 + imagemap ground/hover
+场景底图
+5
+1.1 MB
+华盛顿、白宫、洞穴、全景、Pong 场地
+角色立绘
+5
+1.0 MB
+Eileen ×3、Lucy ×2
+转场素材
+4
+360 KB
+image dissolve 遮罩
+品牌与界面
+29
+1.1 MB
+logo、魔法阵、九宫格、弹窗、启动器截图
+GUI 皮肤
+51
+404 KB
+bar/button/slider/scrollbar 的 9-patch
+合计
+104
+20.6 MB
+占工程 62.6%（另 3 张根目录 png、1 张缓存图未计入）
+        三张 
+concert*.png
+ 各有 4.1~4.2 MB，合计 
+12.4 MB
+ —— 单就这一组就占了整个工程的 
+38%
+。
+单个文件体积 TOP 10
+全工程
+concert1.png
+4,253 KB
+concert3.png
+4,231 KB
+concert2.png
+4,211 KB
+sunflower…ogg
+3,764 KB
+imagemap hover
+1,742 KB
+imagemap ground
+1,739 KB
+bytecode-312.rpyb
+878 KB
+renpyallstars.ogg
+643 KB
+oa4_launch.webm
+476 KB
+bg panorama.webp
+360 KB
+        前 7 个文件（6 个素材 + 1 个缓存）合计 
+18.7 MB
+，超过全工程的一半。
+        做体积优化时，只要处理这一页，收益就接近 60%。
+音频与视频
+7 个文件 · 4.8 MB
+文件
+体积
+用途
+sunflower-slow-drag.ogg
+3,763.6 KB
+主背景音乐（Scott Joplin 钢琴曲，贯穿整个教程）
+renpyallstars.ogg
+643.2 KB
+音乐章节的示例曲目
+oa4_launch.webm
+476.2 KB
+视频播放章节的示例影片
+tower_clock.ogg
+10.1 KB
+时钟音效（音频通道演示）
+punch.opus
+4.5 KB
+打击音效
+pong_beep.opus / pong_boop.opus
+1.9 / 2.0 KB
+Pong 小游戏音效
+7 个文件
+4,901.6 KB
+占工程 14.6%
+      一个细节：短音效用 
+.opus
+（每个 2~5 KB），长音乐用 
+.ogg
+ ——
+      这正好是 Ren'Py 文档推荐的编解码选择（Opus 低延迟适合音效，Vorbis 适合流式音乐）。
+08
+运行时产物与构建配置
+会被重新生成，不属于源码
+game/cache/ · 1.2 MB
+bytecode-312.rpyb
+878.2 KB
+Python 3.12 字节码（文件名里的 312 = 3.12）
+pyanalysis.rpyb
+225.5 KB
+Python 语法分析结果
+screens.rpyb
+94.8 KB
+屏幕分析缓存
+py3analysis.rpyb
+37.1 KB
+Python 3 专用分析
+im-cb24e3…png
+42.6 KB
+运行时图片缓存（扫描线/预处理结果）
+shaders.txt
+0.4 KB
+GPU 着色器编译清单
+        整个目录都可以安全删除，下次启动时引擎会重建（代价是首启慢几秒）。
+game/saves/ · 139 KB
+auto-1-LT1.save
+68.8 KB
+自动存档 1（LT1 = 启动器槽位标记）
+auto-2-LT1.save
+68.8 KB
+自动存档 2
+persistent
+1.6 KB
+持久化数据：已读文本、解锁项、语言偏好
+        存在存档说明这份工程在本机
+被运行过
+（时间戳 2026-09-22），并且玩到了两个自动存档点。
+log.txt 里读出的运行画像
+43 行
+字段
+值 / 含义
+引擎
+Ren'Py 8.5.3.26051504
+Python 3.12
+跳过脚本
+212 script files skipped
+ —— 未启用语言的翻译脚本不参与编译（日志显示本次跳过 212 个脚本文件）
+脚本加载
+1,233 ms
+init 代码
+6,837 ms，其中 
+game/01example.rpy:571
+ 一处就占 
+6,434 ms
+（示例片段扫描）
+渲染后端
+GL2 · Intel UHD Graphics · OpenGL 4.6
+分辨率
+虚拟 
+1280×720
+ → 物理 1600×900（DPI 1.25），说明 GUI 基准是 720p
+纹理上限
+4096×4096 —— 那三张 4 MB 的 concert 图在这个上限内，但已经接近"一次性解码耗内存"的边界
+progressive_download.txt：它还是个 Web 构建样例
+11 行规则
+      这个文件是 RenPyWeb（网页版）的渐进下载分类表，规则是"先匹配先生效"：
+前缀
+路径
+效果
+−
+game/gui/**
+留在 game.zip 内 —— GUI 皮肤必须启动即有，不能延迟
++
+game/**
+其余资源走渐进下载：先玩起来，用到再下
++
+game/music/**、renpyallstars.ogg、sunflower-slow-drag.ogg
+音乐流式加载（那 4.4 MB 的 BGM 因此不阻塞启动）
++
+game/voice/**
+预留的语音目录（本工程暂未使用）
+      这条规则的优先级解释了为什么"gui 目录 404 KB 却单独列一行"：渐进下载表里
+越具体的规则要越靠前
+。
+09
+结论与结构观察
+10 条，按重要性排列
+①
+这是"可运行的教学工程"，不是普通游戏
+project.json
+ 用 
+{"type":"hidden","tutorial":true}
+ 标记自己：启动器不显示它，但引擎知道它是官方教程。
+          602 个文件中真正的教学内容只有 24 个英文 
+.rpy
+（9,512 行，另加 1 个 75 行的 
+.rpym
+ 副本），其余是翻译、素材和缓存。
+②
+三层结构非常清晰，扩展成本极低
+          新增一个教程章节只需要两步：写一个 
+label
+，然后在 
+script.rpy
+ 里加一行 
+Tutorial("label", "标题")
+。
+          目录屏、进度记忆、章节前后的小动作（
+move_before
+/
+move_after
+）全部由框架自动处理。
+          这是这份工程最值得借鉴的设计。
+③
+目录里唯一的"重复文件"是刻意的
+tutorial_director.rpy
+ 与 
+tutorial_director.rpym
+ 内容相同（各 75 行），
+          原因是 
+01director_support.rpy
+ 在 
+python early
+ 阶段把 
+.rpym
+ 复制成 
+.rpy
+ 来"热插拔"导演演示。
+          这也解释了另一个数据：
+源码 238 个，编译产物只有 237 个
+ —— 缺的那一个正是 
+tutorial_director.rpym
+（它的编译走的是 .rpy 那条路）。
+④
+体积完全被素材支配，代码只占 1/4
+          图片 + 音频 + 视频 = 25.3 MB（
+77.2%
+），其中 3 张 concert 图 12.4 MB、1 首 BGM 3.7 MB。
+          工程"重"不在代码，而在示例素材 —— 这与"教学要肉眼可见的效果"的目标一致，但如果要压缩分发体积，
+先处理这 4 个文件就能省掉近一半
+。
+⑤
+翻译层是"镜像复制"，不是手写的第 11 份代码
+          10 种语言 × 约 21 个同名文件，每个语言行数都落在 7,065~7,445（均值 ±3.5% 内），
+          文件名与英文源一一对应，且 
+.rpy
+/
+.rpyc
+ 严格成对。
+          这说明它们是同一次 
+renpy.sh translate
+ 批量生成的，后续人工只填了译文。
+⑥
+Italian 包存在成对的重复 translate 块
+italian/indepth_style.rpy
+ 中约 120 个 translate 块全部出现两次，
+tutorial_quickstart.rpy
+ 块数 259（其他语言 143）。
+          后果：该语言多出约 2,400 行重复条目；功能上后者覆盖前者，不会报错，但会掩盖真正的翻译遗漏，也让校对成本翻倍。
+⑦
+tl/None 是引擎回退层，别当语言数
+          目录里那个 747 行的 
+common.rpym
+ 全是 
+old X / new X
+ 的恒等映射，
+          用途是"任何语言缺条目时显示原文"。统计语言数时应记 
+10 种
+，而不是 11 种。
+⑧
+启动耗时几乎全在一处：示例片段扫描
+log.txt
+ 显示 init 共 6.8 秒，其中 
+01example.rpy:571
+ 的"扫描全部 .rpy → 正则提取 
+#begin/#end
+ → 高亮"占 6.4 秒。
+          换来的是"示例代码永不过期"这一强保证。如果要在低端设备/Web 上优化首启，这里是唯一值得动的地方（例如离线预生成 
+.rpyb
+）。
+⑨
+目录里有 7 个"不该入库"的运行时文件
+log.txt
+、
+cache/screens.rpyb
+、
+cache/shaders.txt
+、
+saves/*
+（3 个）、
+          以及被复制生成的 
+tutorial_director.rpy
+ —— 时间戳都是 2026-09-22（运行日），其余 595 个文件是 2026-05-16（打包日）。
+          版本管理或二次分发时应把这一组排除。
+⑩
+它同时还是 Web 版与自动化测试的样例
+progressive_download.txt
+ 是 RenPyWeb 渐进下载配置，
+testcases.rpy
+ 是引擎自测套件（含按语言跑的用例）。
+          也就是说这份工程的职责有三重：
+教学示例 + 引擎回归测试 + Web 构建示范
+。
+          阅读它时，遇到看不懂的代码先判断它属于哪一重身份。
+如果要复用它，建议的进入顺序
+1
+先读 220 行的 script.rpy
+：30 行类定义 + 1 个目录屏 + 3 个标签，教程的全部调度逻辑都在这里。
+2
+再读 examples.rpy（11 行注释）
+ + 
+01example.rpy
+ 的 
+init python hide
+ 段：理解"源码即示例"的渲染管线，这是全工程最巧的一处。
+3
+挑一个章节当模板
+：想看最小案例读 
+indepth_character.rpy
+（163 行）；想看完整结构读 
+tutorial_quickstart.rpy
+（621 行 / 9 章）。
+4
+做 UI 就抄 screens.rpy + gui.rpy
+：这是新建工程的标配，与教程内容无关，可直接搬到自己项目。
+5
+要改语言才看 tl/
+：文件名与源一一对应，改完直接 
+renpy.sh
+ 重编译即可。
+统计口径：文件数含隐藏文件；行数为 
+.rpy
+/
+.rpym
+ 的物理行（含注释与空行）；体积按 1024 进制。
+生成方式：PowerShell 递归枚举 + 分组统计，二进制文件（.rpyc/.rpyb/.save）不计行数。
+
