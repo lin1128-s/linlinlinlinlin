@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ren'Py Tutorial 工程文件结构分析报告</title>
+<style>
+  :root{
+    --bg:#0c0d14;
+    --bg2:#11131d;
+    --panel:#161926;
+    --panel2:#1b1f2f;
+    --line:rgba(255,255,255,.085);
+    --line2:rgba(255,255,255,.14);
+    --tx:#e7e9f2;
+    --tx2:#9ba2b8;
+    --tx3:#6f7688;
+    --violet:#b06bff;
+    --indigo:#6b8cff;
+    --teal:#4fd1c5;
+    --amber:#ffb86b;
+    --pink:#ff7ab6;
+    --sky:#7fd1ff;
+    --grey:#8b93a8;
+    --red:#ff6b6b;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 600px at 12% -8%, rgba(176,107,255,.14), transparent 60%),
+      radial-gradient(900px 500px at 92% 4%, rgba(79,209,197,.09), transparent 62%),
+      var(--bg);
+    color:var(--tx);
+    font-family:"Segoe UI","Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,sans-serif;
+    font-size:15px;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 26px 90px}
+
+  /* ---------- header ---------- */
+  header{padding:64px 0 26px}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:9px;
+    font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--violet);font-weight:600;
+    border:1px solid rgba(176,107,255,.32);
+    background:rgba(176,107,255,.09);
+    padding:5px 12px;border-radius:999px;
+  }
+  .eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--violet);display:block;box-shadow:0 0 12px var(--violet)}
+  h1{
+    font-size:clamp(30px,4.4vw,46px);line-height:1.2;margin:20px 0 12px;
+    letter-spacing:-.02em;font-weight:700;
+  }
+  h1 em{
+    font-style:normal;
+    background:linear-gradient(96deg,var(--violet),#d9a7ff 40%,var(--teal));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .lede{color:var(--tx2);font-size:16px;max-width:74ch;margin:0}
+  .meta{
+    display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:26px;
+    padding:16px 20px;border:1px solid var(--line);border-radius:14px;
+    background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012));
+    font-size:13px;color:var(--tx2);
+  }
+  .meta b{color:var(--tx);font-weight:600}
+  .meta code{font-family:"Cascadia Mono",Consolas,"Courier New",monospace;font-size:12.5px;color:var(--sky)}
+
+  /* ---------- nav ---------- */
+  nav{
+    display:flex;flex-wrap:wrap;gap:6px;margin:26px 0 12px;
+    padding:7px;border:1px solid var(--line);border-radius:13px;background:var(--bg2);
+  }
+  nav a{
+    color:var(--tx2);text-decoration:none;font-size:13px;padding:6px 12px;border-radius:8px;
+    transition:.18s;white-space:nowrap;
+  }
+  nav a:hover{background:rgba(176,107,255,.14);color:#fff}
+  nav a span{color:var(--violet);font-variant-numeric:tabular-nums;margin-right:6px;font-size:11.5px}
+
+  /* ---------- sections ---------- */
+  section{margin-top:56px;scroll-margin-top:22px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:26px}
+  .sec-num{
+    font-family:"Cascadia Mono",Consolas,monospace;font-size:13px;color:var(--violet);
+    border:1px solid rgba(176,107,255,.3);background:rgba(176,107,255,.08);
+    padding:2px 8px;border-radius:6px;line-height:1.4;
+  }
+  h2{font-size:23px;margin:0;font-weight:650;letter-spacing:-.01em}
+  .sec-head .hint{margin-left:auto;color:var(--tx3);font-size:12.5px}
+  h3{font-size:16px;margin:34px 0 12px;font-weight:650;color:#fff}
+  h3 .tag{
+    font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--tx2);
+    border:1px solid var(--line2);border-radius:5px;padding:1px 7px;margin-left:9px;vertical-align:middle;
+  }
+  p{margin:12px 0}
+  .muted{color:var(--tx2)}
+  .small{font-size:13px}
+
+  /* ---------- kpi ---------- */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:14px}
+  .kpi{
+    border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;
+    background:linear-gradient(165deg,rgba(255,255,255,.05),rgba(255,255,255,.012));
+    position:relative;overflow:hidden;
+  }
+  .kpi::after{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:var(--c,var(--violet));opacity:.85}
+  .kpi .v{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.15;font-variant-numeric:tabular-nums}
+  .kpi .v small{font-size:13px;font-weight:600;color:var(--tx2);margin-left:4px;letter-spacing:0}
+  .kpi .k{font-size:12.5px;color:var(--tx2);margin-top:5px}
+  .kpi .sub{font-size:11.5px;color:var(--tx3);margin-top:2px}
+
+  /* ---------- callout ---------- */
+  .callout{
+    margin-top:22px;border:1px solid rgba(176,107,255,.26);border-left:3px solid var(--violet);
+    border-radius:12px;padding:18px 22px;
+    background:linear-gradient(100deg,rgba(176,107,255,.1),rgba(176,107,255,.02) 70%);
+  }
+  .callout p{margin:0;font-size:14.5px;color:#dcd9ea}
+  .callout b{color:#fff}
+
+  /* ---------- tree table ---------- */
+  .tree-table{width:100%;border-collapse:collapse;font-size:13px}
+  .tree-table td{padding:5px 10px;border-bottom:1px solid rgba(255,255,255,.045);vertical-align:top}
+  .tree-table tr:hover td{background:rgba(255,255,255,.028)}
+  .tree-table td.t{font-family:"Cascadia Mono",Consolas,"Courier New",monospace;white-space:pre;color:var(--tx);width:1%}
+  .tree-table td.n{color:var(--tx2);font-size:12.5px}
+  .tree-table td.s{text-align:right;font-family:"Cascadia Mono",Consolas,monospace;font-size:12px;color:var(--tx2);white-space:nowrap;font-variant-numeric:tabular-nums;width:1%}
+  .tree-table tr.dir td.t{color:#fff;font-weight:600}
+  .tree-table tr.dir{background:rgba(255,255,255,.022)}
+  .tree-table tr.grp td{background:rgba(176,107,255,.05);color:var(--violet);font-size:11.5px;letter-spacing:.05em;font-weight:600}
+  .tree-table tr.grp td.t{color:var(--violet);font-family:inherit}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:8px;vertical-align:middle;background:var(--c,var(--grey));box-shadow:0 0 9px color-mix(in srgb,var(--c) 60%,transparent)}
+
+  /* ---------- panels ---------- */
+  .panel{
+    border:1px solid var(--line);border-radius:16px;background:var(--panel);
+    padding:22px 24px;
+  }
+  .panel + .panel{margin-top:16px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:880px){.grid2{grid-template-columns:1fr}}
+
+  /* ---------- donut ---------- */
+  .donut-wrap{display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+  .donut{position:relative;width:220px;height:220px;flex:0 0 auto}
+  .donut svg{display:block;transform:rotate(0deg)}
+  .donut .center{
+    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    pointer-events:none;
+  }
+  .donut .center b{font-size:26px;letter-spacing:-.02em}
+  .donut .center span{font-size:11.5px;color:var(--tx3);letter-spacing:.08em}
+  .legend{flex:1 1 300px;min-width:280px}
+  .legend-row{display:grid;grid-template-columns:12px 1fr auto auto;gap:10px;align-items:center;padding:5px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,.04)}
+  .legend-row:last-child{border-bottom:0}
+  .legend-row i{width:10px;height:10px;border-radius:3px;background:var(--c);display:block}
+  .legend-row .nm{font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px}
+  .legend-row .vl{color:var(--tx2);font-family:"Cascadia Mono",Consolas,monospace;font-size:12px;font-variant-numeric:tabular-nums}
+  .legend-row .pc{color:#fff;font-variant-numeric:tabular-nums;font-size:12.5px;min-width:52px;text-align:right}
+
+  /* ---------- bars ---------- */
+  .bar-row{
+    display:grid;grid-template-columns:118px 1fr 86px;gap:12px;align-items:center;
+    padding:4px 0;font-size:12.5px;
+  }
+  .bar-row .lbl{color:var(--tx2);font-family:"Cascadia Mono",Consolas,monospace;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar-row .track{height:8px;border-radius:99px;background:rgba(255,255,255,.055);overflow:hidden}
+  .bar-row .fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--c,var(--violet)),color-mix(in srgb,var(--c,var(--violet)) 55%,#fff 12%));min-width:2px}
+  .bar-row .val{text-align:right;font-family:"Cascadia Mono",Consolas,monospace;color:var(--tx);font-variant-numeric:tabular-nums;font-size:12px}
+  .bar-row:hover .lbl{color:#fff}
+
+  /* stacked composition */
+  .stack{display:flex;height:34px;border-radius:9px;overflow:hidden;border:1px solid var(--line2)}
+  .stack div{position:relative;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#0b0c12;white-space:nowrap;overflow:hidden}
+  .stack-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:12.5px;color:var(--tx2)}
+  .stack-legend span{display:inline-flex;align-items:center;gap:7px}
+  .stack-legend i{width:9px;height:9px;border-radius:2px;display:block}
+
+  /* ---------- table ---------- */
+  .tbl{width:100%;border-collapse:collapse;font-size:13px}
+  .tbl th{
+    text-align:left;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--tx3);
+    font-weight:600;padding:9px 10px;border-bottom:1px solid var(--line2);white-space:nowrap;
+  }
+  .tbl td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:top}
+  .tbl tbody tr:hover td{background:rgba(255,255,255,.026)}
+  .tbl .num{text-align:right;font-family:"Cascadia Mono",Consolas,monospace;font-variant-numeric:tabular-nums;font-size:12.5px;white-space:nowrap}
+  .tbl .fn{font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;color:#eef0f8;white-space:nowrap}
+  .tbl .dim{color:var(--tx2)}
+  .tbl .tags{display:flex;flex-wrap:wrap;gap:5px}
+  .tbl tr.total td{border-top:1px solid var(--line2);background:rgba(255,255,255,.03);font-weight:600}
+  .micro{display:inline-block;height:6px;border-radius:99px;background:var(--c,var(--violet));vertical-align:middle;min-width:2px}
+  .micro-track{width:82px;height:6px;border-radius:99px;background:rgba(255,255,255,.06);display:inline-block;vertical-align:middle;overflow:hidden}
+  .micro-track i{display:block;height:100%;background:var(--c,var(--violet));border-radius:99px}
+
+  /* ---------- chips ---------- */
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;
+    padding:2px 9px;border-radius:999px;border:1px solid color-mix(in srgb,var(--c) 34%,transparent);
+    background:color-mix(in srgb,var(--c) 12%,transparent);color:var(--c);white-space:nowrap;
+  }
+  .chip.plain{--c:var(--grey)}
+
+  /* ---------- observations ---------- */
+  .obs{display:grid;gap:12px}
+  .obs-item{
+    display:grid;grid-template-columns:38px 1fr;gap:16px;
+    border:1px solid var(--line);border-radius:13px;padding:16px 20px 16px 16px;
+    background:linear-gradient(180deg,rgba(255,255,255,.032),rgba(255,255,255,.008));
+  }
+  .obs-item .idx{
+    font-family:"Cascadia Mono",Consolas,monospace;font-size:13px;font-weight:700;color:var(--violet);
+    border:1px solid rgba(176,107,255,.28);background:rgba(176,107,255,.08);border-radius:9px;
+    height:30px;display:flex;align-items:center;justify-content:center;
+  }
+  .obs-item h4{margin:2px 0 6px;font-size:14.5px;font-weight:650;color:#fff}
+  .obs-item p{margin:0;font-size:13.5px;color:var(--tx2)}
+  .obs-item p + p{margin-top:7px}
+  .obs-item code,code.i{
+    font-family:"Cascadia Mono",Consolas,monospace;font-size:12px;color:var(--sky);
+    background:rgba(127,209,255,.09);border:1px solid rgba(127,209,255,.16);border-radius:4px;padding:1px 5px;
+  }
+
+  /* ---------- before/after list ---------- */
+  .advice{display:grid;gap:10px;margin-top:6px}
+  .advice div{
+    display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;
+    border-left:2px solid var(--c,var(--teal));padding:6px 0 6px 14px;font-size:13.5px;color:var(--tx2);
+  }
+  .advice b{color:#fff;font-weight:600}
+
+  footer{
+    margin-top:64px;padding-top:22px;border-top:1px solid var(--line);
+    color:var(--tx3);font-size:12px;display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;
+  }
+  .kbd{font-family:"Cascadia Mono",Consolas,monospace;font-size:11.5px;border:1px solid var(--line2);border-bottom-width:2px;border-radius:4px;padding:0 5px;color:var(--tx2)}
+  a{color:var(--sky)}
+
+  @media (max-width:640px){
+    .wrap{padding:0 16px 70px}
+    header{padding:40px 0 18px}
+    .bar-row{grid-template-columns:96px 1fr 74px}
+    .tree-table td.n{display:none}
+    .donut{margin:0 auto}
+  }
+  @media print{
+    body{background:#fff;color:#111}
+    .panel,.kpi,.obs-item,.callout{background:#fff;border-color:#ccc}
+    nav{display:none}
+    h1 em{color:#111;-webkit-text-fill-color:#111}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="eyebrow"><i></i>Ren'Py 8.5.3 SDK · 工程结构分析</span>
+  <h1>Ren'Py <em>Tutorial</em> 工程<br>文件结构分析报告</h1>
+  <p class="lede">
+    这份工程的目录看起来只是一个「小游戏」，实际上是 Ren'Py 官方引擎自带的<b>交互式教学示例</b>：
+    602 个文件里只有 24 个英文脚本承载全部教学内容，其余绝大部分体积由图片素材、10 种语言的翻译镜像和引擎编译缓存构成。
+    下面是逐层拆解。
+  </p>
+  <div class="meta">
+    <span>分析对象 <code>D:\renpy\renpy-8.5.3-sdk\tutorial</code></span>
+    <span>引擎版本 <b>Ren'Py 8.5.3.26051504</b></span>
+    <span>快照时间 <b>2026-10-22</b></span>
+    <span>文件总数 <b>602</b></span>
+    <span>总体积 <b>32.8 MB</b></span>
+  </div>
+</header>
+
+<nav>
+  <a href="#s1"><span>01</span>总体指标</a>
+  <a href="#s2"><span>02</span>目录树</a>
+  <a href="#s3"><span>03</span>文件类型</a>
+  <a href="#s4"><span>04</span>源码分层</a>
+  <a href="#s5"><span>05</span>章节地图</a>
+  <a href="#s6"><span>06</span>翻译层</a>
+  <a href="#s7"><span>07</span>素材清单</a>
+  <a href="#s8"><span>08</span>运行时产物</a>
+  <a href="#s9"><span>09</span>结论与建议</a>
+</nav>
+
+<!-- ============ 01 ============ -->
+<section id="s1">
+  <div class="sec-head">
+    <span class="sec-num">01</span>
+    <h2>总体指标</h2>
+    <span class="hint">按 1 KB = 1024 B 统计</span>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi" style="--c:var(--violet)">
+      <div class="v">602</div>
+      <div class="k">文件</div>
+      <div class="sub">25 个目录</div>
+    </div>
+    <div class="kpi" style="--c:var(--indigo)">
+      <div class="v">32.8<small>MB</small></div>
+      <div class="k">总体积</div>
+      <div class="sub">34,420,088 字节</div>
+    </div>
+    <div class="kpi" style="--c:var(--teal)">
+      <div class="v">84,583</div>
+      <div class="k">脚本行数</div>
+      <div class="sub">238 个 .rpy / .rpym</div>
+    </div>
+    <div class="kpi" style="--c:var(--amber)">
+      <div class="v">10</div>
+      <div class="k">翻译语言</div>
+      <div class="sub">+ 1 个 None 回退层</div>
+    </div>
+    <div class="kpi" style="--c:var(--pink)">
+      <div class="v">38</div>
+      <div class="k">screen 定义</div>
+      <div class="sub">UI 与演示面板</div>
+    </div>
+    <div class="kpi" style="--c:var(--sky)">
+      <div class="v">107</div>
+      <div class="k">图片素材</div>
+      <div class="sub">20.6 MB · 占 62.6%</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p>
+      <b>一句话结论：</b>这是一个「<b>3 层结构</b>」的可运行教学工程 ——
+      <b>框架层</b>（约 1,266 行，负责把教程目录、章节调度和代码示例高亮跑起来）→
+      <b>章节层</b>（约 5,964 行，13 个快速入门 + 13 个深入主题）→
+      <b>翻译镜像层</b>（74,324 行，占全部脚本行的 <b>87.9%</b>，10 种语言一一对应）。
+      体积则由素材支配：图片 + 音频 + 视频共 25.3 MB，占 <b>77.2%</b>，代码本身不到 1/4。
+    </p>
+  </div>
+
+  <h3>体积构成<span class="tag">按文件类别</span></h3>
+  <div class="panel">
+    <div class="stack">
+      <div style="width:62.6%;background:linear-gradient(180deg,#8ed8ff,#5fb8e8)" title="图片 20.6 MB">图片 62.6%</div>
+      <div style="width:14.6%;background:linear-gradient(180deg,#a8f0dd,#5bc9b4)" title="音视频 4.8 MB">音视频 14.6%</div>
+      <div style="width:11.3%;background:linear-gradient(180deg,#d5b4ff,#a06bf0)" title="源码 3.7 MB">源码 11.3%</div>
+      <div style="width:10.7%;background:linear-gradient(180deg,#9fb2ff,#6379e6);color:#fff" title="编译缓存 3.5 MB">编译缓存 10.7%</div>
+      <div style="width:0.8%;background:#8b93a8" title="其他 0.3 MB"></div>
+    </div>
+    <div class="stack-legend">
+      <span><i style="background:#7ccbf5"></i>图片 21,050 KB · 108 张（含 1 张缓存图）</span>
+      <span><i style="background:#7ddcc6"></i>音频/视频 4,902 KB · 7 个</span>
+      <span><i style="background:#b98bf5"></i>.rpy/.rpym 源码 3,795 KB · 238 个</span>
+      <span><i style="background:#8b9df0"></i>.rpyc/.rpymc/.rpyb 3,595 KB · 241 个</span>
+      <span><i style="background:#8b93a8"></i>其余 273 KB</span>
+    </div>
+    <p class="small muted" style="margin-bottom:0">
+      换句话说：<b>每 4 个字节里只有 1 个是代码</b>。这也解释了为什么这个"教学工程"有 32 MB —— 三张演出现场背景图就占了 12.4 MB。
+    </p>
+  </div>
+</section>
+
+<!-- ============ 02 ============ -->
+<section id="s2">
+  <div class="sec-head">
+    <span class="sec-num">02</span>
+    <h2>目录树总览</h2>
+    <span class="hint">缩进为目录层级，右侧为体积与文件数</span>
+  </div>
+
+  <div class="panel" style="padding:10px 6px">
+    <table class="tree-table">
+      <tr class="dir">
+        <td class="t">tutorial/</td>
+        <td class="n">工程根目录 · 除 game/ 外只有 3 个说明与配置文件</td>
+        <td class="s">602 个 · 32.8 MB</td>
+      </tr>
+      <tr>
+        <td class="t">├─ project.json</td>
+        <td class="n">项目标识：<span class="chip plain">hidden</span> 启动器里不显示 · <span class="chip plain">tutorial: true</span> 标记为官方教程</td>
+        <td class="s">0.1 KB</td>
+      </tr>
+      <tr>
+        <td class="t">├─ progressive_download.txt</td>
+        <td class="n">RenPyWeb 渐进下载规则：gui 留在 game.zip，图片/音乐边下边播</td>
+        <td class="s">0.4 KB</td>
+      </tr>
+      <tr>
+        <td class="t">├─ log.txt</td>
+        <td class="n">上一次运行的启动日志（渲染器、耗时、虚拟分辨率）</td>
+        <td class="s">1.6 KB</td>
+      </tr>
+      <tr class="dir">
+        <td class="t">└─ game/</td>
+        <td class="n">引擎读取的全部内容都在这一个目录里</td>
+        <td class="s">599 个 · 32.8 MB</td>
+      </tr>
+
+      <tr class="grp"><td class="t" colspan="3">① 框架层 · 5 个文件 · 1,266 行 · 让教程"能跑起来"的胶水代码</td></tr>
+      <tr>
+        <td class="t">   ├─ script.rpy</td>
+        <td class="n">入口：<code>Section</code>/<code>Tutorial</code> 类 + 教程目录屏 + <code>start</code>/<code>tutorials</code>/<code>end</code></td>
+        <td class="s">220 行 · 6.2 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ 01example.rpy</td>
+        <td class="n">代码示例片段库（650 行）+「显示翻译」开关 + <code>example</code> 屏</td>
+        <td class="s">650 行 · 31.4 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ examples.rpy</td>
+        <td class="n">示例渲染管线说明：把 <code>#begin/#end</code> 标记的片段拼接、高亮、装进 viewport</td>
+        <td class="s">11 行 · 0.4 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ 01director_support.rpy</td>
+        <td class="n"><code>python early</code>：启动时把 <code>.rpym</code> 复制成 <code>.rpy</code> 来启用交互式导演</td>
+        <td class="s">21 行 · 0.5 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   └─ testcases.rpy</td>
+        <td class="n">自动化测试套件：<code>testsuite</code>/<code>testcase</code>，按语言参数跑全流程</td>
+        <td class="s">364 行 · 10.3 KB</td>
+      </tr>
+
+      <tr class="grp"><td class="t" colspan="3">② 模板层 · 3 个文件 · 2,207 行 · Ren'Py 新建工程的标配三件套</td></tr>
+      <tr>
+        <td class="t">   ├─ screens.rpy</td>
+        <td class="n">23 个 UI 屏（say / choice / main_menu / game_menu / preferences …）</td>
+        <td class="s">1,514 行 · 38.4 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ gui.rpy</td>
+        <td class="n">GUI 变量层：配色、字体、字号、边距、立绘尺寸</td>
+        <td class="s">467 行 · 15.1 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   └─ options.rpy</td>
+        <td class="n">游戏配置：名称、版本、存档目录、构建分类</td>
+        <td class="s">226 行 · 7.0 KB</td>
+      </tr>
+
+      <tr class="grp"><td class="t" colspan="3">③ 快速入门章节 · 6 个文件 · 973 行</td></tr>
+      <tr>
+        <td class="t">   ├─ tutorial_quickstart.rpy</td>
+        <td class="n">9 个章节标签：新建游戏 / 写对话 / 加图片 / 定位 / 转场 / 音乐 / 选项 / 输入</td>
+        <td class="s">621 行 · 20.8 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ tutorial_playing.rpy</td>
+        <td class="n">玩家体验：回滚、快进、存读档、跳过</td>
+        <td class="s">108 行 · 4.3 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ tutorial_nvlmode.rpy</td>
+        <td class="n">NVL 模式（整屏对话）与 nvl 版 Eileen</td>
+        <td class="s">89 行 · 2.2 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ tutorial_director.rpy</td>
+        <td class="n">交互式导演演示（运行时由 .rpym 复制生成，见 09-③）</td>
+        <td class="s">75 行 · 3.1 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ tutorial_director.rpym</td>
+        <td class="n">导演模块的"模板"正本，只在需要时被复制成 .rpy</td>
+        <td class="s">75 行 · 3.1 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ tutorial_video.rpy</td>
+        <td class="n">视频播放（webm）+ 音量/字幕演示</td>
+        <td class="s">45 行 · 1.5 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   └─ tutorial_distribute.rpy</td>
+        <td class="n">打包分发：构建流程与 5 张启动器截图</td>
+        <td class="s">35 行 · 1.7 KB</td>
+      </tr>
+
+      <tr class="grp"><td class="t" colspan="3">④ 深入章节 · 10 个文件 · 4,991 行 · 源码主力（52.5%）</td></tr>
+      <tr>
+        <td class="t">   ├─ indepth_style.rpy</td>
+        <td class="n">样式系统：10 个标签 + 10 个屏（含 style inspector）</td>
+        <td class="s">1,094 行 · 33.5 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ tutorial_atl.rpy</td>
+        <td class="n">定位属性、ATL 变换与动画属性</td>
+        <td class="s">930 行 · 25.8 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ tutorial_screen_displayables.rpy</td>
+        <td class="n">11 类 screen displayable 的分类演示</td>
+        <td class="s">897 行 · 30.5 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ tutorial_screens.rpy</td>
+        <td class="n">屏幕基础：显示、传参、属性、控制流、use</td>
+        <td class="s">662 行 · 20.0 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ indepth_transitions.rpy</td>
+        <td class="n">转场画廊：7 个演示标签，覆盖 dissolve/cropmove/pushmove 等</td>
+        <td class="s">547 行 · 12.6 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ indepth_minigame.rpy</td>
+        <td class="n">小游戏与 CDD：Pong 实现</td>
+        <td class="s">286 行 · 9.3 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ indepth_text.rpy</td>
+        <td class="n">文本标签、转义、插值</td>
+        <td class="s">212 行 · 6.9 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ indepth_character.rpy</td>
+        <td class="n">Character 对象：头像、颜色、回调</td>
+        <td class="s">163 行 · 6.0 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ indepth_displayables.rpy</td>
+        <td class="n">简单 displayable 组合</td>
+        <td class="s">136 行 · 4.3 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   └─ indepth_translations.rpy</td>
+        <td class="n">翻译机制现场演示（运行中切换语言）</td>
+        <td class="s">64 行 · 2.8 KB</td>
+      </tr>
+
+      <tr class="grp"><td class="t" colspan="3">⑤ 素材 · 114 个文件 · 25.3 MB（图片在 game/images 与 game/gui，音频散在 game/ 根）</td></tr>
+      <tr>
+        <td class="t">   ├─ images/</td>
+        <td class="n">53 个：背景、立绘、转场、imagemap、九宫格、按钮图</td>
+        <td class="s">20.1 MB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ gui/</td>
+        <td class="n">51 个：bar / button / overlay / phone / scrollbar / slider 的 9-patch 皮肤</td>
+        <td class="s">404 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ *.ogg / *.opus</td>
+        <td class="n">6 个音频：主 BGM、音乐会曲、时钟、Pong 音效、打击音</td>
+        <td class="s">4.3 MB</td>
+      </tr>
+      <tr>
+        <td class="t">   ├─ oa4_launch.webm</td>
+        <td class="n">视频播放章节用到的示例影片</td>
+        <td class="s">476 KB</td>
+      </tr>
+      <tr>
+        <td class="t">   └─ keywords.py</td>
+        <td class="n">语法高亮用的关键字/属性正则表（不是游戏逻辑）</td>
+        <td class="s">131 KB</td>
+      </tr>
+
+      <tr class="grp"><td class="t" colspan="3">⑥ 翻译镜像层 · tl/ · 11 个语言目录（10 种语言 + None） · 426 个文件 · 74,324 行</td></tr>
+      <tr>
+        <td class="t">   └─ tl/&lt;lang&gt;/</td>
+        <td class="n">french · italian · japanese · korean · piglatin · portuguese · russian · schinese · ukrainian + None</td>
+        <td class="s">3.4 MB · 88% 脚本行</td>
+      </tr>
+
+      <tr class="grp"><td class="t" colspan="3">⑦ 运行与构建产物 · 可再生成，不应纳入版本管理</td></tr>
+      <tr>
+        <td class="t">   ├─ cache/</td>
+        <td class="n">6 个：Python 3.12 字节码、语法分析、屏幕分析、着色器列表、图片缓存</td>
+        <td class="s">1.2 MB</td>
+      </tr>
+      <tr>
+        <td class="t">   └─ saves/</td>
+        <td class="n">2 个自动存档 + persistent（上次玩到哪里的记录）</td>
+        <td class="s">139 KB</td>
+      </tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 03 ============ -->
+<section id="s3">
+  <div class="sec-head">
+    <span class="sec-num">03</span>
+    <h2>文件类型分布</h2>
+    <span class="hint">16 种扩展名 · 最大的 6 种占 96.5% 体积</span>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h3 style="margin-top:0">体积占比<span class="tag">按扩展名</span></h3>
+      <div class="donut-wrap">
+        <div class="donut">
+          <svg width="220" height="220" viewBox="0 0 220 220" aria-label="文件类型体积占比">
+            <circle cx="110" cy="110" r="70" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="26"/>
+            <g transform="rotate(-90 110 110)" stroke-width="26" fill="none">
+              <circle cx="110" cy="110" r="70" stroke="#7ccbf5" stroke-dasharray="257.69 439.82" stroke-dashoffset="0"/>
+              <circle cx="110" cy="110" r="70" stroke="#7ddcc6" stroke-dasharray="57.79 439.82" stroke-dashoffset="-257.69"/>
+              <circle cx="110" cy="110" r="70" stroke="#b98bf5" stroke-dasharray="49.35 439.82" stroke-dashoffset="-315.48"/>
+              <circle cx="110" cy="110" r="70" stroke="#8b9df0" stroke-dasharray="30.70 439.82" stroke-dashoffset="-364.83"/>
+              <circle cx="110" cy="110" r="70" stroke="#6b7280" stroke-dasharray="16.19 439.82" stroke-dashoffset="-395.53"/>
+              <circle cx="110" cy="110" r="70" stroke="#e3b341" stroke-dasharray="12.53 439.82" stroke-dashoffset="-411.72"/>
+              <circle cx="110" cy="110" r="70" stroke="#4b5563" stroke-dasharray="15.57 439.82" stroke-dashoffset="-424.25"/>
+            </g>
+          </svg>
+          <div class="center"><b>32.8</b><span>MB 总计</span></div>
+        </div>
+        <div class="legend">
+          <div class="legend-row" style="--c:#7ccbf5"><i></i><span class="nm">.png</span><span class="vl">19,695 KB · 98 个</span><span class="pc">58.6%</span></div>
+          <div class="legend-row" style="--c:#7ddcc6"><i></i><span class="nm">.ogg</span><span class="vl">4,417 KB · 3 个</span><span class="pc">13.1%</span></div>
+          <div class="legend-row" style="--c:#b98bf5"><i></i><span class="nm">.rpy</span><span class="vl">3,771 KB · 236 个</span><span class="pc">11.2%</span></div>
+          <div class="legend-row" style="--c:#8b9df0"><i></i><span class="nm">.rpyc</span><span class="vl">2,348 KB · 236 个</span><span class="pc">7.0%</span></div>
+          <div class="legend-row" style="--c:#6b7280"><i></i><span class="nm">.rpyb</span><span class="vl">1,236 KB · 4 个</span><span class="pc">3.7%</span></div>
+          <div class="legend-row" style="--c:#e3b341"><i></i><span class="nm">.jpg</span><span class="vl">958 KB · 4 个</span><span class="pc">2.9%</span></div>
+          <div class="legend-row" style="--c:#4b5563"><i></i><span class="nm">其他 10 种</span><span class="vl">1,189 KB · 21 个</span><span class="pc">3.5%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3 style="margin-top:0">文件数量的"双主导"<span class="tag">按个数</span></h3>
+      <div class="bar-row" style="--c:var(--violet)"><span class="lbl">.rpy</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="val">236</span></div>
+      <div class="bar-row" style="--c:var(--indigo)"><span class="lbl">.rpyc</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="val">236</span></div>
+      <div class="bar-row" style="--c:var(--sky)"><span class="lbl">.png</span><span class="track"><span class="fill" style="width:41.5%"></span></span><span class="val">98</span></div>
+      <div class="bar-row" style="--c:var(--teal)"><span class="lbl">.webp</span><span class="track"><span class="fill" style="width:2.5%"></span></span><span class="val">6</span></div>
+      <div class="bar-row" style="--c:var(--teal)"><span class="lbl">.jpg</span><span class="track"><span class="fill" style="width:1.7%"></span></span><span class="val">4</span></div>
+      <div class="bar-row" style="--c:var(--grey)"><span class="lbl">.rpyb</span><span class="track"><span class="fill" style="width:1.7%"></span></span><span class="val">4</span></div>
+      <div class="bar-row" style="--c:var(--amber)"><span class="lbl">.ogg</span><span class="track"><span class="fill" style="width:1.3%"></span></span><span class="val">3</span></div>
+      <div class="bar-row" style="--c:var(--amber)"><span class="lbl">.opus</span><span class="track"><span class="fill" style="width:1.3%"></span></span><span class="val">3</span></div>
+      <div class="bar-row" style="--c:var(--grey)"><span class="lbl">.txt</span><span class="track"><span class="fill" style="width:1.3%"></span></span><span class="val">3</span></div>
+      <div class="bar-row" style="--c:var(--grey)"><span class="lbl">.save</span><span class="track"><span class="fill" style="width:.85%"></span></span><span class="val">2</span></div>
+      <div class="bar-row" style="--c:var(--violet)"><span class="lbl">.rpym</span><span class="track"><span class="fill" style="width:.85%"></span></span><span class="val">2</span></div>
+      <p class="small muted" style="margin-bottom:0">
+        <code class="i">.rpy</code> 与 <code class="i">.rpyc</code> 数量完全相等（各 236 个）——
+        每个源文件都有对应的编译产物，说明这份工程是<b>被完整编译过一遍</b>后才打包进 SDK 的。
+      </p>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:16px">
+    <h3 style="margin-top:0">完整类型表</h3>
+    <table class="tbl">
+      <thead>
+        <tr><th>扩展名</th><th>角色</th><th class="num">文件数</th><th class="num">体积 (KB)</th><th class="num">体积占比</th><th style="width:150px">分布</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="fn">.rpy</td><td class="dim">Ren'Py 脚本源码（教程 + 翻译）</td><td class="num">236</td><td class="num">3,771.2</td><td class="num">11.2%</td><td><span class="micro-track"><i style="width:100%;--c:var(--violet)"></i></span></td></tr>
+        <tr><td class="fn">.rpyc</td><td class="dim">编译后的脚本（二进制，启动时省去解析）</td><td class="num">236</td><td class="num">2,347.8</td><td class="num">7.0%</td><td><span class="micro-track"><i style="width:62%;--c:var(--indigo)"></i></span></td></tr>
+        <tr><td class="fn">.rpyb</td><td class="dim">引擎字节码/分析缓存（cache 目录）</td><td class="num">4</td><td class="num">1,235.6</td><td class="num">3.7%</td><td><span class="micro-track"><i style="width:33%;--c:var(--grey)"></i></span></td></tr>
+        <tr><td class="fn">.rpym</td><td class="dim">按需加载的模块脚本（导演演示 / 内建字符串）</td><td class="num">2</td><td class="num">23.3</td><td class="num">0.07%</td><td><span class="micro-track"><i style="width:1%;--c:var(--violet)"></i></span></td></tr>
+        <tr><td class="fn">.rpymc</td><td class="dim">.rpym 的编译产物</td><td class="num">1</td><td class="num">11.3</td><td class="num">0.03%</td><td><span class="micro-track"><i style="width:1%;--c:var(--indigo)"></i></span></td></tr>
+        <tr><td class="fn">.png</td><td class="dim">界面、立绘、转场、imagemap</td><td class="num">98</td><td class="num">19,695.0</td><td class="num">58.6%</td><td><span class="micro-track"><i style="width:100%;--c:var(--sky)"></i></span></td></tr>
+        <tr><td class="fn">.jpg</td><td class="dim">背景照片（华盛顿、白宫、洞穴）</td><td class="num">4</td><td class="num">958.4</td><td class="num">2.9%</td><td><span class="micro-track"><i style="width:5%;--c:var(--sky)"></i></span></td></tr>
+        <tr><td class="fn">.webp</td><td class="dim">全景背景 + 启动器操作截图</td><td class="num">6</td><td class="num">396.4</td><td class="num">1.2%</td><td><span class="micro-track"><i style="width:2%;--c:var(--sky)"></i></span></td></tr>
+        <tr><td class="fn">.ogg</td><td class="dim">背景音乐（Vorbis）</td><td class="num">3</td><td class="num">4,416.9</td><td class="num">13.1%</td><td><span class="micro-track"><i style="width:22%;--c:var(--teal)"></i></span></td></tr>
+        <tr><td class="fn">.opus</td><td class="dim">短音效（Pong、打击）</td><td class="num">3</td><td class="num">8.5</td><td class="num">0.03%</td><td><span class="micro-track"><i style="width:1%;--c:var(--teal)"></i></span></td></tr>
+        <tr><td class="fn">.webm</td><td class="dim">示例视频</td><td class="num">1</td><td class="num">476.2</td><td class="num">1.4%</td><td><span class="micro-track"><i style="width:2.4%;--c:var(--teal)"></i></span></td></tr>
+        <tr><td class="fn">.py</td><td class="dim">keywords.py：高亮用关键字表，非逻辑代码</td><td class="num">1</td><td class="num">131.1</td><td class="num">0.4%</td><td><span class="micro-track"><i style="width:.7%;--c:var(--amber)"></i></span></td></tr>
+        <tr><td class="fn">.save</td><td class="dim">自动存档（运行时生成）</td><td class="num">2</td><td class="num">137.7</td><td class="num">0.4%</td><td><span class="micro-track"><i style="width:.7%;--c:var(--red)"></i></span></td></tr>
+        <tr><td class="fn">.txt</td><td class="dim">log.txt、shaders.txt、渐进下载规则</td><td class="num">3</td><td class="num">2.4</td><td class="num">0.01%</td><td><span class="micro-track"><i style="width:1%;--c:var(--grey)"></i></span></td></tr>
+        <tr><td class="fn">.json</td><td class="dim">project.json 项目标识</td><td class="num">1</td><td class="num">0.1</td><td class="num">0.00%</td><td><span class="micro-track"><i style="width:1%;--c:var(--grey)"></i></span></td></tr>
+        <tr><td class="fn">（无扩展名）</td><td class="dim">saves/persistent 持久化数据</td><td class="num">1</td><td class="num">1.6</td><td class="num">0.00%</td><td><span class="micro-track"><i style="width:1%;--c:var(--grey)"></i></span></td></tr>
+        <tr class="total"><td>合计</td><td class="dim">16 种</td><td class="num">602</td><td class="num">33,613.5</td><td class="num">100%</td><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 04 ============ -->
+<section id="s4">
+  <div class="sec-head">
+    <span class="sec-num">04</span>
+    <h2>源码分层结构</h2>
+    <span class="hint">英文源 25 个文件 · 9,512 行</span>
+  </div>
+
+  <p class="muted small">
+    把 <code class="i">game/</code> 根目录的 25 个脚本按职责归类，可以看出清晰的四层：
+    <b>框架</b>（怎么把教程组织起来）→ <b>模板</b>（Ren'Py 标准 UI）→ <b>章节</b>（教什么）→ <b>示例数据</b>（示例代码从哪来）。
+    其中真正属于"教程逻辑"的只有约 1,266 行，占英文源码的 13.3%。
+  </p>
+
+  <div class="panel">
+    <div class="stack">
+      <div style="width:52.5%;background:linear-gradient(180deg,#ffcf9e,#f0a25c)" title="深入章节 4,991 行">深入章节 52.5%</div>
+      <div style="width:23.2%;background:linear-gradient(180deg,#a8b8ff,#6b8cff);color:#fff" title="模板层 2,207 行">模板 23.2%</div>
+      <div style="width:13.3%;background:linear-gradient(180deg,#d5b4ff,#a06bf0);color:#fff" title="框架层 1,266 行">框架 13.3%</div>
+      <div style="width:10.2%;background:linear-gradient(180deg,#a8f0dd,#5bc9b4)" title="快速入门 973 行">快速入门 10.2%</div>
+      <div style="width:0.8%;background:#8b93a8" title="rpym 75 行"></div>
+    </div>
+    <div class="stack-legend">
+      <span><i style="background:#f5b06a"></i>深入章节 4,991 行 / 10 文件</span>
+      <span><i style="background:#8299f5"></i>模板层 2,207 行 / 3 文件</span>
+      <span><i style="background:#b98bf5"></i>框架层 1,266 行 / 5 文件</span>
+      <span><i style="background:#7ddcc6"></i>快速入门 973 行 / 6 文件</span>
+      <span><i style="background:#8b93a8"></i>.rpym 模块 75 行</span>
+    </div>
+  </div>
+
+  <h3>框架层：教程是怎么组装起来的<span class="tag">关键理解点</span></h3>
+  <div class="panel">
+    <p style="margin-top:0">
+      整份教程的"骨架"只有 20 多行真代码，位于 <code class="i">script.rpy</code>：一个 <code class="i">Section</code> 类 + 一个 <code class="i">Tutorial</code> 类，
+      每个 <code class="i">Tutorial("label", "标题")</code> 会把自己追加进全局列表 <code class="i">tutorials</code>；
+      <code class="i">screen tutorials</code> 遍历这个列表生成目录；
+      <code class="i">label tutorials</code> 用 <code class="i">call expression tutorial.label</code> 跳进章节，回来后再跳回目录 —— 于是形成一个"目录 ↔ 章节"的循环。
+    </p>
+    <p>
+      这条链路上还有两个容易被忽略的机制：
+    </p>
+    <div class="advice">
+      <div style="--c:var(--violet)">
+        <span class="chip" style="--c:var(--violet)">示例内嵌</span>
+        <span>章节里写的每一段教学代码，都用 <code class="i">#begin 名字</code> / <code class="i">#end 名字</code> 包起来；
+        <code class="i">01example.rpy</code> 在 <code class="i">init python</code> 阶段<b>扫描全部 .rpy 源文件</b>，用正则把片段抠出来存进字典，
+        再交给 <code class="i">example</code> 屏做语法高亮 + 复制按钮。也就是说：<b>屏幕上显示的示例代码，就是源文件里真实运行的那段代码</b>，永不过期。</span>
+      </div>
+      <div style="--c:var(--amber)">
+        <span class="chip" style="--c:var(--amber)">运行时换装</span>
+        <span><code class="i">01director_support.rpy</code> 用 <code class="i">python early</code> 在启动最早期把 <code class="i">tutorial_director.rpym</code> 复制成 <code class="i">tutorial_director.rpy</code>，
+        从而"按需"把导演演示挂进游戏；复制失败（只读介质）时降级为只读模式。这就是目录里同时存在 <code class="i">.rpy</code> 与 <code class="i">.rpym</code> 两份 75 行文件的原因。</span>
+      </div>
+    </div>
+    <p class="small muted" style="margin-bottom:0">
+      这也解释了 <code class="i">log.txt</code> 里的一条记录：<code class="i">Init at game/01example.rpy:571 took 6434 ms</code> ——
+      那次 6.4 秒的启动开销，正是"扫描 + 抠取 + 高亮全部示例"这一步，是整个启动流程里最重的操作。
+    </p>
+  </div>
+
+  <h3>英文源模块明细<span class="tag">按行数排序</span></h3>
+  <div class="panel" style="padding:10px 8px">
+    <table class="tbl">
+      <thead>
+        <tr><th>文件</th><th class="num">行数</th><th style="width:110px">规模</th><th class="num">标签</th><th class="num">屏</th><th>职责</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="fn">screens.rpy</td><td class="num">1,514</td><td><span class="micro-track"><i style="width:100%;--c:var(--indigo)"></i></span></td><td class="num">0</td><td class="num">23</td><td class="dim">标准 UI 屏集合，模板层主体</td></tr>
+        <tr><td class="fn">indepth_style.rpy</td><td class="num">1,094</td><td><span class="micro-track"><i style="width:72%;--c:var(--amber)"></i></span></td><td class="num">10</td><td class="num">10</td><td class="dim">样式系统，最大的深入章节（自带 style inspector）</td></tr>
+        <tr><td class="fn">tutorial_atl.rpy</td><td class="num">930</td><td><span class="micro-track"><i style="width:61%;--c:var(--amber)"></i></span></td><td class="num">3</td><td class="num">0</td><td class="dim">定位属性 + ATL 变换与动画</td></tr>
+        <tr><td class="fn">tutorial_screen_displayables.rpy</td><td class="num">897</td><td><span class="micro-track"><i style="width:59%;--c:var(--amber)"></i></span></td><td class="num">11</td><td class="num">0</td><td class="dim">11 类 screen displayable 逐类演示</td></tr>
+        <tr><td class="fn">tutorial_screens.rpy</td><td class="num">662</td><td><span class="micro-track"><i style="width:44%;--c:var(--amber)"></i></span></td><td class="num">9</td><td class="num">3</td><td class="dim">屏幕基础：传参、属性、控制流、use</td></tr>
+        <tr><td class="fn">01example.rpy</td><td class="num">650</td><td><span class="micro-track"><i style="width:43%;--c:var(--violet)"></i></span></td><td class="num">0</td><td class="num">1</td><td class="dim">示例片段库 + 示例渲染屏 + 翻译显示偏好</td></tr>
+        <tr><td class="fn">tutorial_quickstart.rpy</td><td class="num">621</td><td><span class="micro-track"><i style="width:41%;--c:var(--teal)"></i></span></td><td class="num">9</td><td class="num">0</td><td class="dim">9 个入门章节合装在一个文件里</td></tr>
+        <tr><td class="fn">indepth_transitions.rpy</td><td class="num">547</td><td><span class="micro-track"><i style="width:36%;--c:var(--amber)"></i></span></td><td class="num">7</td><td class="num">0</td><td class="dim">转场画廊，7 个子演示</td></tr>
+        <tr><td class="fn">gui.rpy</td><td class="num">467</td><td><span class="micro-track"><i style="width:31%;--c:var(--indigo)"></i></span></td><td class="num">0</td><td class="num">0</td><td class="dim">GUI 变量层（配色/字体/尺寸）</td></tr>
+        <tr><td class="fn">testcases.rpy</td><td class="num">364</td><td><span class="micro-track"><i style="width:24%;--c:var(--violet)"></i></span></td><td class="num">0</td><td class="num">0</td><td class="dim">自动化测试：按语言跑完整流程</td></tr>
+        <tr><td class="fn">indepth_minigame.rpy</td><td class="num">286</td><td><span class="micro-track"><i style="width:19%;--c:var(--amber)"></i></span></td><td class="num">2</td><td class="num">0</td><td class="dim">Pong 小游戏 + CDD 用法</td></tr>
+        <tr><td class="fn">options.rpy</td><td class="num">226</td><td><span class="micro-track"><i style="width:15%;--c:var(--indigo)"></i></span></td><td class="num">0</td><td class="num">0</td><td class="dim">游戏配置与构建规则</td></tr>
+        <tr><td class="fn">script.rpy</td><td class="num">220</td><td><span class="micro-track"><i style="width:15%;--c:var(--violet)"></i></span></td><td class="num">3</td><td class="num">1</td><td class="dim">入口与教程目录（start / tutorials / end）</td></tr>
+        <tr><td class="fn">indepth_text.rpy</td><td class="num">212</td><td><span class="micro-track"><i style="width:14%;--c:var(--amber)"></i></span></td><td class="num">3</td><td class="num">0</td><td class="dim">文本标签、转义、插值</td></tr>
+        <tr><td class="fn">indepth_character.rpy</td><td class="num">163</td><td><span class="micro-track"><i style="width:11%;--c:var(--amber)"></i></span></td><td class="num">1</td><td class="num">0</td><td class="dim">Character 对象定制</td></tr>
+        <tr><td class="fn">indepth_displayables.rpy</td><td class="num">136</td><td><span class="micro-track"><i style="width:9%;--c:var(--amber)"></i></span></td><td class="num">1</td><td class="num">0</td><td class="dim">简单 displayable 组合</td></tr>
+        <tr><td class="fn">tutorial_playing.rpy</td><td class="num">108</td><td><span class="micro-track"><i style="width:7%;--c:var(--teal)"></i></span></td><td class="num">3</td><td class="num">0</td><td class="dim">玩家体验：回滚、跳过、存读档</td></tr>
+        <tr><td class="fn">tutorial_nvlmode.rpy</td><td class="num">89</td><td><span class="micro-track"><i style="width:6%;--c:var(--teal)"></i></span></td><td class="num">2</td><td class="num">0</td><td class="dim">NVL 整屏对话模式</td></tr>
+        <tr><td class="fn">tutorial_director.rpy</td><td class="num">75</td><td><span class="micro-track"><i style="width:5%;--c:var(--teal)"></i></span></td><td class="num">1</td><td class="num">0</td><td class="dim">交互式导演（运行时生成）</td></tr>
+        <tr><td class="fn">tutorial_director.rpym</td><td class="num">75</td><td><span class="micro-track"><i style="width:5%;--c:var(--grey)"></i></span></td><td class="num">1</td><td class="num">0</td><td class="dim">同上，模块正本</td></tr>
+        <tr><td class="fn">indepth_translations.rpy</td><td class="num">64</td><td><span class="micro-track"><i style="width:4%;--c:var(--amber)"></i></span></td><td class="num">1</td><td class="num">0</td><td class="dim">翻译机制演示</td></tr>
+        <tr><td class="fn">tutorial_video.rpy</td><td class="num">45</td><td><span class="micro-track"><i style="width:3%;--c:var(--teal)"></i></span></td><td class="num">1</td><td class="num">0</td><td class="dim">视频播放</td></tr>
+        <tr><td class="fn">tutorial_distribute.rpy</td><td class="num">35</td><td><span class="micro-track"><i style="width:2.3%;--c:var(--teal)"></i></span></td><td class="num">1</td><td class="num">0</td><td class="dim">打包分发说明</td></tr>
+        <tr><td class="fn">01director_support.rpy</td><td class="num">21</td><td><span class="micro-track"><i style="width:1.4%;--c:var(--violet)"></i></span></td><td class="num">0</td><td class="num">0</td><td class="dim">导演模块的早启动/热插拔开关</td></tr>
+        <tr><td class="fn">examples.rpy</td><td class="num">11</td><td><span class="micro-track"><i style="width:.7%;--c:var(--violet)"></i></span></td><td class="num">0</td><td class="num">0</td><td class="dim">示例渲染管线的说明与接口注释</td></tr>
+        <tr class="total"><td>25 个文件</td><td class="num">9,512</td><td></td><td class="num">68</td><td class="num">38</td><td class="dim">英文源合计（标签去重；.rpym 的 director 与其 .rpy 重复，故文件内共 69 处）</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 05 ============ -->
+<section id="s5">
+  <div class="sec-head">
+    <span class="sec-num">05</span>
+    <h2>章节地图：目录项 → 文件 → 标签</h2>
+    <span class="hint">共 26 个教程条目，分 2 个分区</span>
+  </div>
+
+  <p class="muted small">
+    教程目录由 26 个 <code class="i">Tutorial</code> 条目组成：<b>Quickstart 13 条</b>（面向新手）+ <b>In Depth 13 条</b>（面向进阶）。
+    很多条目不各自占一个文件 —— 例如"创建游戏/写对话/加图片"等 8 条全部住在 <code class="i">tutorial_quickstart.rpy</code> 里，
+    这就是该文件 621 行的原因。
+  </p>
+
+  <div class="panel" style="padding:10px 8px">
+    <table class="tbl">
+      <thead>
+        <tr><th>分区</th><th>目录条目</th><th>所在文件</th><th>标签</th><th class="num">文件行数</th></tr>
+      </thead>
+      <tbody>
+        <tr><td rowspan="13" style="vertical-align:middle"><span class="chip" style="--c:var(--teal)">Quickstart</span></td>
+            <td>Player Experience</td><td class="fn dim">tutorial_playing.rpy</td><td class="fn dim">tutorial_playing</td><td class="num">108</td></tr>
+        <tr><td>Creating a New Game</td><td class="fn dim">tutorial_quickstart.rpy</td><td class="fn dim">tutorial_create</td><td class="num" rowspan="8" style="vertical-align:middle">621</td></tr>
+        <tr><td>Writing Dialogue</td><td class="fn dim">tutorial_quickstart.rpy</td><td class="fn dim">tutorial_dialogue</td></tr>
+        <tr><td>Adding Images</td><td class="fn dim">tutorial_quickstart.rpy</td><td class="fn dim">tutorial_images</td></tr>
+        <tr><td>Positioning Images</td><td class="fn dim">tutorial_quickstart.rpy</td><td class="fn dim">tutorial_simple_positions</td></tr>
+        <tr><td>Transitions</td><td class="fn dim">tutorial_quickstart.rpy</td><td class="fn dim">tutorial_transitions</td></tr>
+        <tr><td>Music and Sound Effects</td><td class="fn dim">tutorial_quickstart.rpy</td><td class="fn dim">tutorial_music</td></tr>
+        <tr><td>Choices and Python</td><td class="fn dim">tutorial_quickstart.rpy</td><td class="fn dim">tutorial_menus</td></tr>
+        <tr><td>Input and Interpolation</td><td class="fn dim">tutorial_quickstart.rpy</td><td class="fn dim">tutorial_input</td></tr>
+        <tr><td>Video Playback</td><td class="fn dim">tutorial_video.rpy</td><td class="fn dim">tutorial_video</td><td class="num">45</td></tr>
+        <tr><td>NVL Mode</td><td class="fn dim">tutorial_nvlmode.rpy</td><td class="fn dim">tutorial_nvlmode</td><td class="num">89</td></tr>
+        <tr><td>Tools and the Interactive Director</td><td class="fn dim">tutorial_director.rpy<br>.rpym</td><td class="fn dim">director</td><td class="num">75</td></tr>
+        <tr><td>Building Distributions</td><td class="fn dim">tutorial_distribute.rpy</td><td class="fn dim">distribute</td><td class="num">35</td></tr>
+        <tr><td colspan="3" class="dim" style="font-size:12px">小计：13 条条目 → 6 个文件 → 973 行</td><td class="num">973</td></tr>
+
+        <tr><td rowspan="14" style="vertical-align:middle"><span class="chip" style="--c:var(--amber)">In Depth</span></td>
+            <td>Text Tags, Escapes, Interpolation</td><td class="fn dim">indepth_text.rpy</td><td class="fn dim">text</td><td class="num">212</td></tr>
+        <tr><td>Character Objects</td><td class="fn dim">indepth_character.rpy</td><td class="fn dim">demo_character</td><td class="num">163</td></tr>
+        <tr><td>Simple Displayables</td><td class="fn dim">indepth_displayables.rpy</td><td class="fn dim">simple_displayables</td><td class="num">136</td></tr>
+        <tr><td>Transition Gallery</td><td class="fn dim">indepth_transitions.rpy</td><td class="fn dim">demo_transitions</td><td class="num">547</td></tr>
+        <tr><td>Position Properties</td><td class="fn dim">tutorial_atl.rpy</td><td class="fn dim">tutorial_positions</td><td class="num" rowspan="3" style="vertical-align:middle">930</td></tr>
+        <tr><td>Transforms and Animation</td><td class="fn dim">tutorial_atl.rpy</td><td class="fn dim">tutorial_atl</td></tr>
+        <tr><td>Transform Properties</td><td class="fn dim">tutorial_atl.rpy</td><td class="fn dim">transform_properties</td></tr>
+        <tr><td>GUI Customization</td><td class="fn dim">indepth_style.rpy</td><td class="fn dim">new_gui</td><td class="num" rowspan="2" style="vertical-align:middle">1,094</td></tr>
+        <tr><td>Styles and Style Properties</td><td class="fn dim">indepth_style.rpy</td><td class="fn dim">styles</td></tr>
+        <tr><td>Screen Basics</td><td class="fn dim">tutorial_screens.rpy</td><td class="fn dim">tutorial_screens</td><td class="num">662</td></tr>
+        <tr><td>Screen Displayables</td><td class="fn dim">tutorial_screen_displayables.rpy</td><td class="fn dim">screen_displayables</td><td class="num">897</td></tr>
+        <tr><td>Minigames and CDDs</td><td class="fn dim">indepth_minigame.rpy</td><td class="fn dim">demo_minigame</td><td class="num">286</td></tr>
+        <tr><td>Translations</td><td class="fn dim">indepth_translations.rpy</td><td class="fn dim">translations</td><td class="num">64</td></tr>
+        <tr><td colspan="3" class="dim" style="font-size:12px">小计：13 条条目 → 10 个文件 → 4,991 行</td><td class="num">4,991</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="small muted">
+    注意 <code class="i">indepth_style.rpy</code> 与 <code class="i">tutorial_screens.rpy</code> 内部还有多层子菜单
+    （<code class="i">styles_menu</code>、<code class="i">screens_menu</code>），所以它们的标签数（10 / 9）明显多于目录条目数。
+    如果一个章节要"边讲边演示"，它就往往会膨胀成 800~1,100 行的重型文件（<code class="i">indepth_style</code>、<code class="i">tutorial_atl</code>、<code class="i">tutorial_screen_displayables</code> 都是这样）—— 这是这份工程的普遍规律。
+  </p>
+</section>
+
+<!-- ============ 06 ============ -->
+<section id="s6">
+  <div class="sec-head">
+    <span class="sec-num">06</span>
+    <h2>翻译层：10 种语言 + 1 个回退层</h2>
+    <span class="hint">426 个文件 · 74,324 行 · 3.4 MB</span>
+  </div>
+
+  <p class="muted small">
+    <code class="i">game/tl/&lt;lang&gt;/</code> 是 Ren'Py 的标准翻译目录结构：每个语言一套与英文源<b>同名同构</b>的
+    <code class="i">.rpy</code>（21 个左右，只有 <code class="i">translate &lt;lang&gt; &lt;id&gt;:</code> 块，不含逻辑），
+    外加引擎内建 UI 字符串的 <code class="i">common.rpy</code>（每个 1,000~1,500 行，占该语言 15%~20% 的行数）。
+  </p>
+
+  <div class="grid2">
+    <div class="panel">
+      <h3 style="margin-top:0">各语言脚本行数<span class="tag">横条为相对长度</span></h3>
+      <div class="bar-row" style="--c:var(--pink)"><span class="lbl">italian</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="val">9,589</span></div>
+      <div class="bar-row" style="--c:var(--violet)"><span class="lbl">japanese</span><span class="track"><span class="fill" style="width:77.6%"></span></span><span class="val">7,445</span></div>
+      <div class="bar-row" style="--c:var(--indigo)"><span class="lbl">french</span><span class="track"><span class="fill" style="width:75.8%"></span></span><span class="val">7,273</span></div>
+      <div class="bar-row" style="--c:var(--sky)"><span class="lbl">spanish</span><span class="track"><span class="fill" style="width:75.3%"></span></span><span class="val">7,219</span></div>
+      <div class="bar-row" style="--c:var(--sky)"><span class="lbl">portuguese</span><span class="track"><span class="fill" style="width:75.1%"></span></span><span class="val">7,202</span></div>
+      <div class="bar-row" style="--c:var(--teal)"><span class="lbl">piglatin</span><span class="track"><span class="fill" style="width:75.0%"></span></span><span class="val">7,187</span></div>
+      <div class="bar-row" style="--c:var(--amber)"><span class="lbl">schinese</span><span class="track"><span class="fill" style="width:74.5%"></span></span><span class="val">7,147</span></div>
+      <div class="bar-row" style="--c:var(--teal)"><span class="lbl">ukrainian</span><span class="track"><span class="fill" style="width:74.3%"></span></span><span class="val">7,122</span></div>
+      <div class="bar-row" style="--c:var(--teal)"><span class="lbl">russian</span><span class="track"><span class="fill" style="width:73.8%"></span></span><span class="val">7,075</span></div>
+      <div class="bar-row" style="--c:var(--teal)"><span class="lbl">korean</span><span class="track"><span class="fill" style="width:73.7%"></span></span><span class="val">7,065</span></div>
+      <div class="bar-row" style="--c:var(--grey)"><span class="lbl">None（回退）</span><span class="track"><span class="fill" style="width:7.8%"></span></span><span class="val">747</span></div>
+      <p class="small muted" style="margin-bottom:0">
+        除 Italian 外，各语言都稳定落在 <b>7,065 ~ 7,445 行</b>区间（±3%），说明这是一批<b>同源同步生成</b>的翻译包。
+      </p>
+    </div>
+
+    <div class="panel">
+      <h3 style="margin-top:0">每个语言的固定构成<span class="tag">以 spanish 为例</span></h3>
+      <table class="tbl" style="font-size:12.5px">
+        <tbody>
+          <tr><td class="fn">common.rpy</td><td class="dim">引擎内建字符串（菜单、存读档、偏好设置…）</td><td class="num">1,222 行</td></tr>
+          <tr><td class="fn">tutorial_quickstart.rpy</td><td class="dim">8 个入门章节</td><td class="num">875 行</td></tr>
+          <tr><td class="fn">indepth_style.rpy</td><td class="dim">样式系统</td><td class="num">808 行</td></tr>
+          <tr><td class="fn">tutorial_screen_displayables.rpy</td><td class="dim">屏幕 displayable</td><td class="num">765 行</td></tr>
+          <tr><td class="fn">tutorial_atl.rpy</td><td class="dim">ATL 与变换</td><td class="num">651 行</td></tr>
+          <tr><td class="fn">tutorial_screens.rpy</td><td class="dim">屏幕基础</td><td class="num">593 行</td></tr>
+          <tr><td class="fn">indepth_transitions.rpy</td><td class="dim">转场画廊</td><td class="num">523 行</td></tr>
+          <tr><td class="fn">screens.rpy</td><td class="dim">UI 屏文本</td><td class="num">330 行</td></tr>
+          <tr><td class="fn">indepth_character.rpy</td><td class="dim">Character</td><td class="num">210 行</td></tr>
+          <tr><td class="fn">tutorial_playing.rpy</td><td class="dim">玩家体验</td><td class="num">193 行</td></tr>
+          <tr><td class="fn">script.rpy</td><td class="dim">目录标题与开场白</td><td class="num">179 行</td></tr>
+          <tr><td class="fn">indepth_text.rpy</td><td class="dim">文本标签</td><td class="num">178 行</td></tr>
+          <tr><td class="fn">其余 9 个</td><td class="dim">minigame / nvlmode / director / video / distribute / options / 01example / displayables / translations</td><td class="num">约 700 行</td></tr>
+          <tr class="total"><td>21 个文件</td><td class="dim">+ 21 个同名 .rpyc</td><td class="num">7,219 行</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h3>两个值得注意的特殊条目</h3>
+  <div class="obs">
+    <div class="obs-item">
+      <div class="idx">A</div>
+      <div>
+        <h4>tl/None/ —— 不是语言，是"回退层"</h4>
+        <p>
+          这个目录里只有一个 <code class="i">common.rpym</code>（747 行），内容是 <code class="i">translate None strings:</code>
+          块，且每条都是 <code class="i">old "Monday"</code> / <code class="i">new "Monday"</code> 这样的<b>恒等映射</b>。
+          它是 Ren'Py 用来占位"未翻译语言"的内建字符串模板（引擎据此保证任何语言缺翻译时仍能显示原文）。
+          把它当成"第 11 种语言"会误判，实际它是<b>0 号语言</b>。
+        </p>
+      </div>
+    </div>
+    <div class="obs-item" style="border-color:rgba(255,107,107,.3)">
+      <div class="idx" style="color:var(--red);border-color:rgba(255,107,107,.35);background:rgba(255,107,107,.08)">B</div>
+      <div>
+        <h4>italian 包明显偏胖：疑似残留重复条目</h4>
+        <p>
+          Italian 共 <b>9,589 行</b>，比同批语言的平均值（约 7,193 行）高出 <b>33%</b>。差异集中在三个文件：
+          <code class="i">tutorial_quickstart.rpy</code> 1,571 行（其他语言约 870）、<code class="i">indepth_style.rpy</code> 1,506 行（其他约 808）、
+          <code class="i">indepth_transitions.rpy</code> 1,009 行（其他约 523）。
+        </p>
+        <p>
+          进一步核对发现：<code class="i">italian/indepth_style.rpy</code> 里几乎<b>每个 translate 块都出现两次</b>
+          （如 <code class="i">translate italian style_basics_9a79ef89</code> 重复 x2），quickstart 的块数为 259 而其它语言为 143。
+          这不会导致崩溃（后出现的同名块覆盖前者），但属于<b>旧版条目未清理</b>的维护噪声：
+          该语言包比同源语言多出约 2,400 行冗余条目，也让后续翻译校对容易漏掉真正的缺口。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 ============ -->
+<section id="s7">
+  <div class="sec-head">
+    <span class="sec-num">07</span>
+    <h2>素材清单与体积热点</h2>
+    <span class="hint">图片 107 · 音频 6 · 视频 1</span>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h3 style="margin-top:0">图片按用途分组<span class="tag">game/images + gui</span></h3>
+      <table class="tbl" style="font-size:12.5px">
+        <thead><tr><th>分组</th><th class="num">文件</th><th class="num">体积</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>演出现场背景</td><td class="num">3</td><td class="num">12.4 MB</td><td class="dim">concert1~3.png，音乐章节用</td></tr>
+          <tr><td>可点击热区图</td><td class="num">7</td><td class="num">4.1 MB</td><td class="dim">音量控件 + imagemap ground/hover</td></tr>
+          <tr><td>场景底图</td><td class="num">5</td><td class="num">1.1 MB</td><td class="dim">华盛顿、白宫、洞穴、全景、Pong 场地</td></tr>
+          <tr><td>角色立绘</td><td class="num">5</td><td class="num">1.0 MB</td><td class="dim">Eileen ×3、Lucy ×2</td></tr>
+          <tr><td>转场素材</td><td class="num">4</td><td class="num">360 KB</td><td class="dim">image dissolve 遮罩</td></tr>
+          <tr><td>品牌与界面</td><td class="num">29</td><td class="num">1.1 MB</td><td class="dim">logo、魔法阵、九宫格、弹窗、启动器截图</td></tr>
+          <tr><td>GUI 皮肤</td><td class="num">51</td><td class="num">404 KB</td><td class="dim">bar/button/slider/scrollbar 的 9-patch</td></tr>
+          <tr class="total"><td>合计</td><td class="num">104</td><td class="num">20.6 MB</td><td class="dim">占工程 62.6%（另 3 张根目录 png、1 张缓存图未计入）</td></tr>
+        </tbody>
+      </table>
+      <p class="small muted" style="margin-bottom:0">
+        三张 <code class="i">concert*.png</code> 各有 4.1~4.2 MB，合计 <b>12.4 MB</b> —— 单就这一组就占了整个工程的 <b>38%</b>。
+      </p>
+    </div>
+
+    <div class="panel">
+      <h3 style="margin-top:0">单个文件体积 TOP 10<span class="tag">全工程</span></h3>
+      <div class="bar-row" style="--c:var(--sky)"><span class="lbl">concert1.png</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="val">4,253 KB</span></div>
+      <div class="bar-row" style="--c:var(--sky)"><span class="lbl">concert3.png</span><span class="track"><span class="fill" style="width:99.5%"></span></span><span class="val">4,231 KB</span></div>
+      <div class="bar-row" style="--c:var(--sky)"><span class="lbl">concert2.png</span><span class="track"><span class="fill" style="width:99.0%"></span></span><span class="val">4,211 KB</span></div>
+      <div class="bar-row" style="--c:var(--teal)"><span class="lbl">sunflower…ogg</span><span class="track"><span class="fill" style="width:88.5%"></span></span><span class="val">3,764 KB</span></div>
+      <div class="bar-row" style="--c:var(--sky)"><span class="lbl">imagemap hover</span><span class="track"><span class="fill" style="width:41.0%"></span></span><span class="val">1,742 KB</span></div>
+      <div class="bar-row" style="--c:var(--sky)"><span class="lbl">imagemap ground</span><span class="track"><span class="fill" style="width:40.9%"></span></span><span class="val">1,739 KB</span></div>
+      <div class="bar-row" style="--c:var(--grey)"><span class="lbl">bytecode-312.rpyb</span><span class="track"><span class="fill" style="width:20.7%"></span></span><span class="val">878 KB</span></div>
+      <div class="bar-row" style="--c:var(--teal)"><span class="lbl">renpyallstars.ogg</span><span class="track"><span class="fill" style="width:15.1%"></span></span><span class="val">643 KB</span></div>
+      <div class="bar-row" style="--c:var(--amber)"><span class="lbl">oa4_launch.webm</span><span class="track"><span class="fill" style="width:11.2%"></span></span><span class="val">476 KB</span></div>
+      <div class="bar-row" style="--c:var(--sky)"><span class="lbl">bg panorama.webp</span><span class="track"><span class="fill" style="width:8.5%"></span></span><span class="val">360 KB</span></div>
+      <p class="small muted" style="margin-bottom:0">
+        前 7 个文件（6 个素材 + 1 个缓存）合计 <b>18.7 MB</b>，超过全工程的一半。
+        做体积优化时，只要处理这一页，收益就接近 60%。
+      </p>
+    </div>
+  </div>
+
+  <h3>音频与视频<span class="tag">7 个文件 · 4.8 MB</span></h3>
+  <div class="panel" style="padding:10px 8px">
+    <table class="tbl" style="font-size:12.5px">
+      <thead><tr><th>文件</th><th class="num">体积</th><th>用途</th></tr></thead>
+      <tbody>
+        <tr><td class="fn">sunflower-slow-drag.ogg</td><td class="num">3,763.6 KB</td><td class="dim">主背景音乐（Scott Joplin 钢琴曲，贯穿整个教程）</td></tr>
+        <tr><td class="fn">renpyallstars.ogg</td><td class="num">643.2 KB</td><td class="dim">音乐章节的示例曲目</td></tr>
+        <tr><td class="fn">oa4_launch.webm</td><td class="num">476.2 KB</td><td class="dim">视频播放章节的示例影片</td></tr>
+        <tr><td class="fn">tower_clock.ogg</td><td class="num">10.1 KB</td><td class="dim">时钟音效（音频通道演示）</td></tr>
+        <tr><td class="fn">punch.opus</td><td class="num">4.5 KB</td><td class="dim">打击音效</td></tr>
+        <tr><td class="fn">pong_beep.opus / pong_boop.opus</td><td class="num">1.9 / 2.0 KB</td><td class="dim">Pong 小游戏音效</td></tr>
+        <tr class="total"><td>7 个文件</td><td class="num">4,901.6 KB</td><td class="dim">占工程 14.6%</td></tr>
+      </tbody>
+    </table>
+    <p class="small muted" style="margin:12px 0 0">
+      一个细节：短音效用 <code class="i">.opus</code>（每个 2~5 KB），长音乐用 <code class="i">.ogg</code> ——
+      这正好是 Ren'Py 文档推荐的编解码选择（Opus 低延迟适合音效，Vorbis 适合流式音乐）。
+    </p>
+  </div>
+</section>
+
+<!-- ============ 08 ============ -->
+<section id="s8">
+  <div class="sec-head">
+    <span class="sec-num">08</span>
+    <h2>运行时产物与构建配置</h2>
+    <span class="hint">会被重新生成，不属于源码</span>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h3 style="margin-top:0">game/cache/ · 1.2 MB</h3>
+      <table class="tbl" style="font-size:12.5px">
+        <tbody>
+          <tr><td class="fn">bytecode-312.rpyb</td><td class="num">878.2 KB</td><td class="dim">Python 3.12 字节码（文件名里的 312 = 3.12）</td></tr>
+          <tr><td class="fn">pyanalysis.rpyb</td><td class="num">225.5 KB</td><td class="dim">Python 语法分析结果</td></tr>
+          <tr><td class="fn">screens.rpyb</td><td class="num">94.8 KB</td><td class="dim">屏幕分析缓存</td></tr>
+          <tr><td class="fn">py3analysis.rpyb</td><td class="num">37.1 KB</td><td class="dim">Python 3 专用分析</td></tr>
+          <tr><td class="fn">im-cb24e3…png</td><td class="num">42.6 KB</td><td class="dim">运行时图片缓存（扫描线/预处理结果）</td></tr>
+          <tr><td class="fn">shaders.txt</td><td class="num">0.4 KB</td><td class="dim">GPU 着色器编译清单</td></tr>
+        </tbody>
+      </table>
+      <p class="small muted" style="margin-bottom:0">
+        整个目录都可以安全删除，下次启动时引擎会重建（代价是首启慢几秒）。
+      </p>
+    </div>
+
+    <div class="panel">
+      <h3 style="margin-top:0">game/saves/ · 139 KB</h3>
+      <table class="tbl" style="font-size:12.5px">
+        <tbody>
+          <tr><td class="fn">auto-1-LT1.save</td><td class="num">68.8 KB</td><td class="dim">自动存档 1（LT1 = 启动器槽位标记）</td></tr>
+          <tr><td class="fn">auto-2-LT1.save</td><td class="num">68.8 KB</td><td class="dim">自动存档 2</td></tr>
+          <tr><td class="fn">persistent</td><td class="num">1.6 KB</td><td class="dim">持久化数据：已读文本、解锁项、语言偏好</td></tr>
+        </tbody>
+      </table>
+      <p class="small muted" style="margin-bottom:0">
+        存在存档说明这份工程在本机<b>被运行过</b>（时间戳 2026-09-22），并且玩到了两个自动存档点。
+      </p>
+    </div>
+  </div>
+
+  <h3>log.txt 里读出的运行画像<span class="tag">43 行</span></h3>
+  <div class="panel">
+    <table class="tbl" style="font-size:12.5px">
+      <thead><tr><th style="width:220px">字段</th><th>值 / 含义</th></tr></thead>
+      <tbody>
+        <tr><td class="dim">引擎</td><td><span class="chip" style="--c:var(--violet)">Ren'Py 8.5.3.26051504</span> <span class="chip plain">Python 3.12</span></td></tr>
+        <tr><td class="dim">跳过脚本</td><td><code class="i">212 script files skipped</code> —— 未启用语言的翻译脚本不参与编译（日志显示本次跳过 212 个脚本文件）</td></tr>
+        <tr><td class="dim">脚本加载</td><td>1,233 ms</td></tr>
+        <tr><td class="dim">init 代码</td><td>6,837 ms，其中 <code class="i">game/01example.rpy:571</code> 一处就占 <b>6,434 ms</b>（示例片段扫描）</td></tr>
+        <tr><td class="dim">渲染后端</td><td>GL2 · Intel UHD Graphics · OpenGL 4.6</td></tr>
+        <tr><td class="dim">分辨率</td><td>虚拟 <b>1280×720</b> → 物理 1600×900（DPI 1.25），说明 GUI 基准是 720p</td></tr>
+        <tr><td class="dim">纹理上限</td><td>4096×4096 —— 那三张 4 MB 的 concert 图在这个上限内，但已经接近"一次性解码耗内存"的边界</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>progressive_download.txt：它还是个 Web 构建样例<span class="tag">11 行规则</span></h3>
+  <div class="panel">
+    <p style="margin-top:0" class="small">
+      这个文件是 RenPyWeb（网页版）的渐进下载分类表，规则是"先匹配先生效"：
+    </p>
+    <table class="tbl" style="font-size:12.5px">
+      <thead><tr><th style="width:80px">前缀</th><th style="width:220px">路径</th><th>效果</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip" style="--c:var(--grey)">−</span></td><td class="fn">game/gui/**</td><td class="dim">留在 game.zip 内 —— GUI 皮肤必须启动即有，不能延迟</td></tr>
+        <tr><td><span class="chip" style="--c:var(--teal)">+</span></td><td class="fn">game/**</td><td class="dim">其余资源走渐进下载：先玩起来，用到再下</td></tr>
+        <tr><td><span class="chip" style="--c:var(--teal)">+</span></td><td class="fn">game/music/**、renpyallstars.ogg、sunflower-slow-drag.ogg</td><td class="dim">音乐流式加载（那 4.4 MB 的 BGM 因此不阻塞启动）</td></tr>
+        <tr><td><span class="chip" style="--c:var(--teal)">+</span></td><td class="fn">game/voice/**</td><td class="dim">预留的语音目录（本工程暂未使用）</td></tr>
+      </tbody>
+    </table>
+    <p class="small muted" style="margin-bottom:0">
+      这条规则的优先级解释了为什么"gui 目录 404 KB 却单独列一行"：渐进下载表里<b>越具体的规则要越靠前</b>。
+    </p>
+  </div>
+</section>
+
+<!-- ============ 09 ============ -->
+<section id="s9">
+  <div class="sec-head">
+    <span class="sec-num">09</span>
+    <h2>结论与结构观察</h2>
+    <span class="hint">10 条，按重要性排列</span>
+  </div>
+
+  <div class="obs">
+    <div class="obs-item">
+      <div class="idx">①</div>
+      <div>
+        <h4>这是"可运行的教学工程"，不是普通游戏</h4>
+        <p>
+          <code class="i">project.json</code> 用 <code class="i">{"type":"hidden","tutorial":true}</code> 标记自己：启动器不显示它，但引擎知道它是官方教程。
+          602 个文件中真正的教学内容只有 24 个英文 <code class="i">.rpy</code>（9,512 行，另加 1 个 75 行的 <code class="i">.rpym</code> 副本），其余是翻译、素材和缓存。
+        </p>
+      </div>
+    </div>
+
+    <div class="obs-item">
+      <div class="idx">②</div>
+      <div>
+        <h4>三层结构非常清晰，扩展成本极低</h4>
+        <p>
+          新增一个教程章节只需要两步：写一个 <code class="i">label</code>，然后在 <code class="i">script.rpy</code> 里加一行 <code class="i">Tutorial("label", "标题")</code>。
+          目录屏、进度记忆、章节前后的小动作（<code class="i">move_before</code>/<code class="i">move_after</code>）全部由框架自动处理。
+          这是这份工程最值得借鉴的设计。
+        </p>
+      </div>
+    </div>
+
+    <div class="obs-item">
+      <div class="idx">③</div>
+      <div>
+        <h4>目录里唯一的"重复文件"是刻意的</h4>
+        <p>
+          <code class="i">tutorial_director.rpy</code> 与 <code class="i">tutorial_director.rpym</code> 内容相同（各 75 行），
+          原因是 <code class="i">01director_support.rpy</code> 在 <code class="i">python early</code> 阶段把 <code class="i">.rpym</code> 复制成 <code class="i">.rpy</code> 来"热插拔"导演演示。
+          这也解释了另一个数据：<b>源码 238 个，编译产物只有 237 个</b> —— 缺的那一个正是 <code class="i">tutorial_director.rpym</code>（它的编译走的是 .rpy 那条路）。
+        </p>
+      </div>
+    </div>
+
+    <div class="obs-item">
+      <div class="idx">④</div>
+      <div>
+        <h4>体积完全被素材支配，代码只占 1/4</h4>
+        <p>
+          图片 + 音频 + 视频 = 25.3 MB（<b>77.2%</b>），其中 3 张 concert 图 12.4 MB、1 首 BGM 3.7 MB。
+          工程"重"不在代码，而在示例素材 —— 这与"教学要肉眼可见的效果"的目标一致，但如果要压缩分发体积，
+          <b>先处理这 4 个文件就能省掉近一半</b>。
+        </p>
+      </div>
+    </div>
+
+    <div class="obs-item">
+      <div class="idx">⑤</div>
+      <div>
+        <h4>翻译层是"镜像复制"，不是手写的第 11 份代码</h4>
+        <p>
+          10 种语言 × 约 21 个同名文件，每个语言行数都落在 7,065~7,445（均值 ±3.5% 内），
+          文件名与英文源一一对应，且 <code class="i">.rpy</code>/<code class="i">.rpyc</code> 严格成对。
+          这说明它们是同一次 <code class="i">renpy.sh translate</code> 批量生成的，后续人工只填了译文。
+        </p>
+      </div>
+    </div>
+
+    <div class="obs-item">
+      <div class="idx">⑥</div>
+      <div>
+        <h4>Italian 包存在成对的重复 translate 块</h4>
+        <p>
+          <code class="i">italian/indepth_style.rpy</code> 中约 120 个 translate 块全部出现两次，
+          <code class="i">tutorial_quickstart.rpy</code> 块数 259（其他语言 143）。
+          后果：该语言多出约 2,400 行重复条目；功能上后者覆盖前者，不会报错，但会掩盖真正的翻译遗漏，也让校对成本翻倍。
+        </p>
+      </div>
+    </div>
+
+    <div class="obs-item">
+      <div class="idx">⑦</div>
+      <div>
+        <h4>tl/None 是引擎回退层，别当语言数</h4>
+        <p>
+          目录里那个 747 行的 <code class="i">common.rpym</code> 全是 <code class="i">old X / new X</code> 的恒等映射，
+          用途是"任何语言缺条目时显示原文"。统计语言数时应记 <b>10 种</b>，而不是 11 种。
+        </p>
+      </div>
+    </div>
+
+    <div class="obs-item">
+      <div class="idx">⑧</div>
+      <div>
+        <h4>启动耗时几乎全在一处：示例片段扫描</h4>
+        <p>
+          <code class="i">log.txt</code> 显示 init 共 6.8 秒，其中 <code class="i">01example.rpy:571</code> 的"扫描全部 .rpy → 正则提取 <code class="i">#begin/#end</code> → 高亮"占 6.4 秒。
+          换来的是"示例代码永不过期"这一强保证。如果要在低端设备/Web 上优化首启，这里是唯一值得动的地方（例如离线预生成 <code class="i">.rpyb</code>）。
+        </p>
+      </div>
+    </div>
+
+    <div class="obs-item">
+      <div class="idx">⑨</div>
+      <div>
+        <h4>目录里有 7 个"不该入库"的运行时文件</h4>
+        <p>
+          <code class="i">log.txt</code>、<code class="i">cache/screens.rpyb</code>、<code class="i">cache/shaders.txt</code>、<code class="i">saves/*</code>（3 个）、
+          以及被复制生成的 <code class="i">tutorial_director.rpy</code> —— 时间戳都是 2026-09-22（运行日），其余 595 个文件是 2026-05-16（打包日）。
+          版本管理或二次分发时应把这一组排除。
+        </p>
+      </div>
+    </div>
+
+    <div class="obs-item">
+      <div class="idx">⑩</div>
+      <div>
+        <h4>它同时还是 Web 版与自动化测试的样例</h4>
+        <p>
+          <code class="i">progressive_download.txt</code> 是 RenPyWeb 渐进下载配置，<code class="i">testcases.rpy</code> 是引擎自测套件（含按语言跑的用例）。
+          也就是说这份工程的职责有三重：<b>教学示例 + 引擎回归测试 + Web 构建示范</b>。
+          阅读它时，遇到看不懂的代码先判断它属于哪一重身份。
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <h3>如果要复用它，建议的进入顺序</h3>
+  <div class="panel">
+    <div class="advice">
+      <div style="--c:var(--violet)"><b>1</b><span><b>先读 220 行的 script.rpy</b>：30 行类定义 + 1 个目录屏 + 3 个标签，教程的全部调度逻辑都在这里。</span></div>
+      <div style="--c:var(--indigo)"><b>2</b><span><b>再读 examples.rpy（11 行注释）</b> + <code class="i">01example.rpy</code> 的 <code class="i">init python hide</code> 段：理解"源码即示例"的渲染管线，这是全工程最巧的一处。</span></div>
+      <div style="--c:var(--teal)"><b>3</b><span><b>挑一个章节当模板</b>：想看最小案例读 <code class="i">indepth_character.rpy</code>（163 行）；想看完整结构读 <code class="i">tutorial_quickstart.rpy</code>（621 行 / 9 章）。</span></div>
+      <div style="--c:var(--amber)"><b>4</b><span><b>做 UI 就抄 screens.rpy + gui.rpy</b>：这是新建工程的标配，与教程内容无关，可直接搬到自己项目。</span></div>
+      <div style="--c:var(--pink)"><b>5</b><span><b>要改语言才看 tl/</b>：文件名与源一一对应，改完直接 <code class="i">renpy.sh</code> 重编译即可。</span></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>统计口径：文件数含隐藏文件；行数为 <code>.rpy</code>/<code>.rpym</code> 的物理行（含注释与空行）；体积按 1024 进制。</span>
+  <span>生成方式：PowerShell 递归枚举 + 分组统计，二进制文件（.rpyc/.rpyb/.save）不计行数。</span>
+</footer>
+
+</div>
+</body>
+</html>
