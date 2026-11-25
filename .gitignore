@@ -1,0 +1,27 @@
+# ===== Ren'Py 运行产物（不应入库）=====
+/game/saves/
+/game/cache/
+/game/**/*.rpyc
+/game/**/*.rpymc
+/game/**/*.bak
+/game/**/*.new
+/game/**/*.old
+
+# ===== 日志与错误输出 =====
+/log.txt
+/errors.txt
+/traceback.txt
+/files.txt
+/image_cache.txt
+/save_dump.txt
+
+# ===== 编辑器与系统 =====
+.idea/
+.vscode/
+Thumbs.db
+Desktop.ini
+
+# ===== 打包产物 =====
+# 如需把打包结果提交进仓库，请注释掉下面两行
+/build/
+/dist/

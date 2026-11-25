@@ -6,6 +6,6 @@ label start:
 
     $ quick_menu = True
 
-    call chapter_one
+    call chapter_one from _call_chapter_one
 
     return
